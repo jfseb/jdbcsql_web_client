@@ -1,0 +1,99 @@
+
+// preset form values if we receive a userdata object //
+- label = ' '
+- icon = userid ? '/css/ui/person_tie.png' : '/css/ui/External.png'
+- userid = user
+- conversationid = conversationid
+- namelink = typeof(user) != 'undefined' ? ('/settings') : '/login'
+
+
+doctype html
+html
+	head
+		meta(charset='UTF-8')
+		meta(name='description', content='SQL Client with charting')
+		meta(name="google-site-verification" content="NOTYET")
+		meta(name='conversationid',content="#{conversationid}")
+		title SQL Client
+		meta(name='viewport', content='width=device-width, initial-scale=1')
+		script(src='socket.io/socket.io.js')
+		script(src='http://www.chartjs.org/dist/2.7.2/Chart.bundle.js')
+		script(src='http://www.chartjs.org/samples/latest/utils.js')
+		link(rel='stylesheet', href='/css/index_style.css')
+		link(rel='stylesheet', href='/css/canvas.css')
+	body(style="line-height:1em; -webkit-app-region: drag;")
+		img(title="User status", style='width:18px;height:18px',src="/css/ui/External.png")
+		div#header-wrap(style='-webkit-app-region: drag; text-size:20')
+			ul.nav(style=)
+				li.nav.dropdown(style='float:left!important')
+					a.dropbtn(href='javascript:void(0)', style="margin:5px 10px;")
+						img.dropbtn(title="menu", style='width:18px;height:18px', onclick='doExpand()', src="/css/ui/person_tie.png")
+					div#aDropDown.dropdown-content
+						a(href="/about") about
+						a(href="/termsofuse") terms of use
+						a(href="/whatsnew") what's new
+						a(href="/legal_de") impressum (german)
+						a(href="/legal_en") legal disclosure (english)
+				li.nav.center(style="float:center!important;padding: 8px 10px") SQL Client
+
+		div(style='margin-top:20px', data-theme='a')
+		div.well
+			div.panel.panel-sm.panel-warning
+				div.panel.panel-sm.panel-heading(style="background-color:#ffb833;color:darkblue") Setup script
+				div.panel-body(style="padding-top:0px !important")
+					div.row(style="padding-left:0px !important")
+						textarea#setup CREATE TABLE T1 (col1 int, col2 varchar(256));
+						button#execSetup run setup
+
+			ul.ui-listview(style='-webkit-app-region: no-drag', data-role='listview')
+				li.abc
+
+				li.request(data-icon="false")
+					textarea#growme.ui-input-textX(rows='5', value='Acbdef') enter SQL Query
+				li.button abc
+					button#updateQuery exec
+					label rate
+					input#rate(value=123)
+					span /sec
+					label fail rate
+					input#fail_rate(enabled=false,disabled=true, value=1234)
+					span /s
+				li.result
+					table
+						tr
+							td
+								button#continuous(style='pressed') continuous
+							td
+								label parallel
+								input#parallel(value=1)
+								button#incpar +
+						tr
+							td dsdf
+							td klm
+
+					testarea#result.ui-input-textX(rows='5') abc
+
+
+	div(style="width:90%")
+			canvas#canvas
+
+	div
+		table(style="width:10%", border="1")
+						tr
+							td value
+							td 1s
+							td 30s
+							td 1min
+							td 30min
+						tr
+							td
+								span rate
+							td
+								input#rate(value:123, style="text-align:right", value=123)
+						tr
+							td
+								span failure rate
+							td
+								input#rate(value:123, style="text-align:right", value=123)
+		script(src='/js/index.js')
+		script(src='/js/chart1.js')

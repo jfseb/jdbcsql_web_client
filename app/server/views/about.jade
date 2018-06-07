@@ -1,0 +1,49 @@
+
+// preset form values if we receive a userdata object //
+- user = user
+
+extends layout_p
+
+block content
+
+	nav.navbar.navbar-default.navbar-fixed-top
+		.container
+			.navbar-header
+				.navbar-brand(style='bgcolor:orange;color:darkblue;font-family:Arial Black;font-size:15.118px') wosap about
+			ul.nav.navbar-nav.navbar-right #{uid}
+				li
+					.navbar-btn#btn-logout.btn.btn-default(onclick="location.href='/home'")
+						| back to home
+
+	p  &nbsp;
+	p &nbsp;
+	p
+
+	div.well
+
+		h3 legal links
+			span.pull-right Rechtliche Erklärungen
+		p
+		span This is a non-commercial, private website.
+		span.pull-right Dies ist eine nicht kommerzielle, private Website.
+		br
+		span
+			a(href="/legal_en") Legal Disclosure, Disclaimer, Data Privacy Statement (English, Englisch)
+		span.pull-right
+			a(href="/legal_de") Impressum, Haftungsausschluss, Datenschutzerkl&auml;rung (Deutsch, German)
+		br
+		span
+			a.btn.btn-default(href="/termsofuse") Terms of use
+		span.pull-right
+			a.btn.btn-default(href="/termsofuse") Nutzungsbedingungen
+
+		br
+		p
+		|  a small sql client offering arbitrary sql input, output of the response and ability to repeat query execution
+		br ability to for query execution
+		p
+
+block scripts
+	script(src='/vendor/jquery-2.2.3.min.js')
+	script(src='/vendor/bootstrap.min.js')
+	script(src='/js/views/settings.js')
