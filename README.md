@@ -10,16 +10,13 @@ Web server and client to execute sql queries via node-jdbc
     gulp
 ```
 
-### Run commandline bot
+prerequisites: 
+the dendency node-jdbc require java and jdk (javac) on your path
+
+### Run server:
 
 ```
-    node smartbot.js
-```
-
-### Run webserver bot
-
-```
-    node serverpug.js
+    node server.js
 ```
 
 ## Development
