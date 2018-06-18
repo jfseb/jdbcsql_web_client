@@ -6,7 +6,6 @@
 - conversationid = conversationid
 - namelink = typeof(user) != 'undefined' ? ('/settings') : '/login'
 
-
 doctype html
 html
 	head
@@ -30,46 +29,56 @@ html
 						img.dropbtn(title="menu", style='width:18px;height:18px', onclick='doExpand()', src="/css/ui/person_tie.png")
 					div#aDropDown.dropdown-content
 						a(href="/about") about
-						a(href="/termsofuse") terms of use
-						a(href="/whatsnew") what's new
-						a(href="/legal_de") impressum (german)
-						a(href="/legal_en") legal disclosure (english)
 				li.nav.center(style="float:center!important;padding: 8px 10px") SQL Client
 
 		div(style='margin-top:20px', data-theme='a')
 		div.well
 			div.panel.panel-sm.panel-warning
-				div.panel.panel-sm.panel-heading(style="background-color:#ffb833;color:darkblue") Setup script
-				div.panel-body(style="padding-top:0px !important")
-					div.row(style="padding-left:0px !important")
-						textarea#setup CREATE TABLE T1 (col1 int, col2 varchar(256));
-						button#execSetup run setup
-
 			ul.ui-listview(style='-webkit-app-region: no-drag', data-role='listview')
-				li.abc
+				li.abcdef
 
 				li.request(data-icon="false")
 					textarea#growme.ui-input-textX(rows='5', value='Acbdef') enter SQL Query
-				li.button abc
-					button#updateQuery exec
-					label rate
-					input#rate(value=123)
-					span /sec
-					label fail rate
-					input#fail_rate(enabled=false,disabled=true, value=1234)
-					span /s
 				li.result
 					table
 						tr
 							td
-								button#continuous(style='pressed') continuous
+								button#btnexec execute
+							td
+								button#btncontinuous(style='pressed') continuous
 							td
 								label parallel
 								input#parallel(value=1)
-								button#incpar +
+								button#btndecpar -
+								button#btnincpar +
+				li.chart
+					table
 						tr
-							td dsdf
-							td klm
+							td
+								button#btnQPS(style='color: green; font-weight:bold') QPS
+							td
+								button#btnPAR(style='color: red; font-weight:bold') FAIL
+							td
+								button#btnMEM(style='color: brown; font-weight:bold') MEM
+							td
+								button#btnCPU(style='color: yellow; font-weight:bold') CPU
+							td
+								button#btnPAR(style='color: blue; font-weight:bold') PAR
+							td
+								button#btnMAXMEM(style='color : orange; font-weight:bold') MAXMEM
+							td
+								button#btnDUR(style='color: goldenrod; font-weight:bold') DUR
+							td
+								button#btnNP(style='color: lightblue; font-weight:bold') NP
+							td
+								span(style="width:5%")
+							td
+								button#btnPurgeAverage(style='pressed') reduce Averaging
+							td
+								button#btnPurgeSample(style='pressed') reduce Purging
+							td
+								button#btnPurgeLeftHalf(style='pressed') remove left half
+
 
 					testarea#result.ui-input-textX(rows='5') abc
 
@@ -77,23 +86,7 @@ html
 	div(style="width:90%")
 			canvas#canvas
 
-	div
-		table(style="width:10%", border="1")
-						tr
-							td value
-							td 1s
-							td 30s
-							td 1min
-							td 30min
-						tr
-							td
-								span rate
-							td
-								input#rate(value:123, style="text-align:right", value=123)
-						tr
-							td
-								span failure rate
-							td
-								input#rate(value:123, style="text-align:right", value=123)
+	block scripts
+		script(src='/vendor/jquery-2.2.3.min.js')
 		script(src='/js/index.js')
 		script(src='/js/chart1.js')

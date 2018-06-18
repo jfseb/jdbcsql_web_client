@@ -59,7 +59,7 @@
     }
 
     div.response {
-      font-style: italic;
+      font-style: bold;
       border-color: #000000;
       color: #000000;
       background-color: lightgrey;

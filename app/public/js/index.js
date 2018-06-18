@@ -174,11 +174,11 @@ module = undefined;
     //var as = require('./gen/utils/appdata.js');
     //var ad = new as.PersistenceHandle("fdevstart","history.json")
 function saveHistory(oData) {
-  window.localStorage.setItem('fdevStart', JSON.stringify(oData));
+  window.localStorage.setItem('jdbcsql_web_client', JSON.stringify(oData));
 }
 function loadHistory(cb) {
   try {
-    var u = window.localStorage.getItem('fdevStart');
+    var u = window.localStorage.getItem('jdbcsql_web_client');
     u = u && JSON.parse(u);
   } catch (e) {
     u = undefined;
@@ -245,7 +245,7 @@ function makeLi(value, sType) {
   div.innerText = value;
   div.innerHTML = encodeStrAsHTML(value);
   textarea.parentNode.parentNode.insertBefore(li,textarea.parentNode);
-  window.scrollTo(0,document.body.scrollHeight);
+ //  window.scrollTo(0,document.body.scrollHeight);
 }
 
 function makeResponse(sLine) {
@@ -301,7 +301,7 @@ textarea.addEventListener('keydown',function(e) {
     textarea.parentNode.parentNode.insertBefore(li,textarea.parentNode);
     setTimeout(function() {
       textarea.value = '';
-      htmlconnector.processMessage(value.substring(0,140));
+      htmlconnector.processMessage({ sourcedest : 'EXEC', statement : value.substring(0,140)} );
     }, 10);
   }
   else
@@ -333,8 +333,13 @@ document.addEventListener('DOMContentLoaded', function(event) {
   //do work
     // WebSocket
   var socket = io.connect();
-  socket.on('wosap', function (data) {
-    makeResponse(data.text);
+  socket.on('sqlclient', function (data) {
+    console.log('here data' + JSON.stringify(data));
+    if(data.sourcedest == 'CHART') {
+      addChartRecord(data.body.record);
+    } else {
+      makeResponse(data.body);
+    }
     if(data.command && data.command.url) {
       window.open(data.command.url); // ,'_blank');
     }
@@ -360,16 +365,114 @@ document.addEventListener('DOMContentLoaded', function(event) {
   */
   });
     // Nachricht senden
-  function processMessage(sString){
-        // Eingabefelder auslesen
+  function processMessage(oString){
     var name = 'unkown';
-    var text = sString;
     var conversationid = document.getElementsByName('conversationid')[0].content;
       // send
-    socket.emit('wosap', { name: name, text: text, conversationid : conversationid });
+    socket.emit('sqlclient', { name: name, body : oString, conversationid : conversationid });
   }
     // bei einem Klick
   window.htmlconnector = {
     processMessage : processMessage
   };
 });
+
+
+function updateParallel(value)
+{
+  settings.parallel = value;
+  htmlconnector.processMessage(
+    { sourcedest : 'PAR' , statement :
+        textarea.value,
+      op: 'CHANGE',
+      settings : settings
+    });
+}
+
+var settings = {
+  continuous : false,
+  parallel: 1
+};
+
+
+$(document).ready(function(){
+
+// confirm account deletion //
+  $('#btninc').click(function(){
+    $('#parallel').setValue(  $('#parallel').getValue() + 1 );
+  });
+
+  $('#btndecpar').click(function(){
+    var value =  parseInt($('#parallel').val()) - 1;
+    if( value > 0) {
+      $('#parallel').val( value );
+      updateParallel(value);
+    }
+  });
+
+  $('#btncontinuous').click(function(){
+    settings.continuous = !settings.continuous;
+    $('#btncontinuous').text( settings.continuous ? 'stop' : 'continuous');
+
+    htmlconnector.processMessage(
+      { sourcedest : 'PAR' , statement :
+          textarea.value,
+        op:  settings.continuous ? 'START' : 'STOP',
+        settings : settings
+      });
+  });
+
+  $('#btnexec').click(function(){
+    htmlconnector.processMessage( { sourcedest : 'EXEC' , statement :
+     textarea.value});
+  });
+
+
+  $('#parallel').on('change paste keyup', function() {
+    var val = 1;
+    try {
+      val = parseInt($('parallel').val());
+    } catch(e) {
+      $('parallel').val(1);
+    }
+    if ( '' + val != '' + $('parallel').val()) {
+      $('parallel').val(val);
+    }
+    settings.parallel = val;
+    updateParallel($(this).val());
+  });
+
+  $('#btnincpar').click(function(){
+    var value =  parseInt($('#parallel').val()) + 1;
+    if( value > 0) {
+      $('#parallel').val( value );
+      updateParallel(value);
+    }
+  });
+
+
+  $('#btnPurgeSample').click(function(){
+    removeHalfData(true);
+  });
+  $('#btnPurgeAverage').click(function(){
+    removeHalfData(false);
+  });
+  $('#btnPurgeLeftHalf').click(function(){
+    removeHalfDataLeft();
+  });
+
+  $('#btnMEM').click(function(){    toggleColumn('MEM'); });
+  $('#btnMAXMEM').click(function(){    toggleColumn('MAXMEM'); });
+  $('#btnPAR').click(function(){    toggleColumn('PAR'); });
+  $('#btnCPU').click(function(){    toggleColumn('CPU'); });
+  $('#btnQPS').click(function(){    toggleColumn('QPS'); });
+  $('#btnNP').click(function(){    toggleColumn('NP'); });
+  $('#btnDUR').click(function(){    toggleColumn('DUR'); });
+  $('#btnFAIL').click(function(){    toggleColumn('FAIL'); });
+
+});
+
+
+
+// handle account deletion //
+$('.modal-confirm .submit').click(function(){ that.deleteAccount(); });
