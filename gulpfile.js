@@ -29,7 +29,7 @@ var testDir = 'test';
 
 gulp.task('watch', function () {
   gulp.watch([srcDir + '/**/*.js', testDir + '/**/*.js', srcDir + '/**/*.tsx',  srcDir + '/**/*.ts', 'gulpfile.js'],
-    ['tsc', 'babel', 'webpack','standard']);
+    ['tsc', 'babel','standard']);
 });
 
 const babel = require('gulp-babel');
@@ -60,129 +60,6 @@ gulp.task('tsc', function () {
 });
 
 
-var webpacks = require('webpack-stream');
-gulp.task('webpack_notinuse', function() {
-  return gulp.src('./src/web/qbetable.tsx')
-    .pipe(webpacks( require('./webpack.config.js') ))
-    .pipe(gulp.dest('/app/public/js/'));
-});
-
-
-
-var del = require('del');
-
-gulp.task('clean:models', function () {
-  return del([
-    'sensitive/_cachefalse.js.zip',
-    'testmodel2/_cachefalse.js.zip',
-    'testmodel/_cachefalse.js.zip',
-    'testmodel/_cachefalse.js.zip',
-    'node_modules/abot_testmodel/testmodel/_cachefalse.js.zip',
-    'testmodel/_cachefalse.js.zip',
-    'sensitive/_cachetrue.js.zip',
-    'testmodel2/_cachetrue.js.zip',
-    'testmodel/_cachetrue.js.zip',
-    // here we use a globbing pattern to match everything inside the `mobile` folder
-  //  'dist/mobile/**/*',
-    // we don't want to clean this file though so we negate the pattern
-//    '!dist/mobile/deploy.json'
-  ]);
-});
-
-
-gulp.task('clean', ['clean:models']);
-
-var gutil = require('gulp-util');
-var webpack = require('webpack');
-var webpackConfig = require('./webpack.config.js');
-
-//console.log(' here config ' + JSON.stringify(webpackConfig)
-//);
-
-// Production build
-
-
-gulp.task('webpack', function(callback) {
-	// modify some webpack config options
-//  var myConfig = Object.create(webpackConfig);
-//  console.log("here config " + JSON.stringify(myConfig));
-  /*
-  myConfig.plugins2 = myConfig.plugins.concat(
-		new webpack.DefinePlugin({
-      'process.env': {
-				// This has effect on the react lib size
-      'NODE_ENV': JSON.stringify('production')
-  }
-  })/-*,
-	  new webpack.optimize.UglifyJsPlugin()
-   *-/
-  );*/
-
-	// run webpack
-  webpack(webpackConfig, function(err, stats) {
-    if(err) throw new gutil.PluginError('webpack_build', err);
-    gutil.log('[webpack_build]', stats.toString({
-      colors: true
-    }));
-    callback();
-  });
-});
-
-
-
-
-
-
-
-
-
-/**
- * compile tsc (including srcmaps)
- * @input srcDir
- * @output genDir
- */
-gulp.task('tscx', function () {
-  var tsProject = ts.createProject('tsconfig.json', { inlineSourceMap: true });
-  var tsResult = tsProject.src() // gulp.src('lib/*.ts')
-    .pipe(sourcemaps.init()) // This means sourcemaps will be generated
-    .pipe(tsProject());
-
-  return tsResult
-       .pipe(babel({
-         comments: true,
-         presets: ['es2015']
-       }))
-    // .pipe( ... ) // You can use other plugins that also support gulp-sourcemaps
-      .pipe(sourcemaps.write()) // ,  { sourceRoot: './' } ))
-      // Now the sourcemaps are added to the .js file
-    .pipe(gulp.dest('gen2'));
-});
-
-
-/**
- * compile tsc (including srcmaps)
- * @input srcDir
- * @output genDir
- */
-/*
-gulp.task('tsc2', function () {
-  var tsProject = ts.createProject('tsconfig.json', { inlineSourceMap: false });
-  var tsResult = tsProject.src() // gulp.src('lib/*.ts')
-    .pipe(sourcemaps.init()) // This means sourcemaps will be generated
-    .pipe(tsProject());
-
-  return tsResult.js
-    .pipe(babel({
-      comments: true,
-      presets: ['es2015']
-    }))
-    // .pipe( ... ) // You can use other plugins that also support gulp-sourcemaps
-    .pipe(sourcemaps.write()) // Now the sourcemaps are added to the .js file
-    .pipe(gulp.dest('gen2'));
-});
-*/
-
-
 var jsdoc = require('gulp-jsdoc3');
 
 gulp.task('doc', function (cb) {
@@ -190,48 +67,12 @@ gulp.task('doc', function (cb) {
     .pipe(jsdoc(cb));
 });
 
-// gulp.task('copyInputFilterRules', ['tsc', 'babel'], function () {
-//  return gulp.src([
-//    genDir + '/match/inputFilterRules.js'
-//  ], { 'base': genDir })
-//    .pipe(gulp.dest('gen_cov'));
-// });
-
-/*
-var instrument = require('gulp-instrument')
-
-gulp.task('instrumentx', ['tsc', 'babel', 'copyInputFilterRules'], function () {
-  return gulp.src([
-    genDir + '/match/data.js',
-    genDir + '/match/dispatcher.js',
-    genDir + '/match/ifmatch.js',
-    genDir + '/match/inputFilter.js',
-    // genDir + '/match/inputFilterRules.js',
-    genDir + '/match/matchData.js',
-    //  genDir + '/match/inputFilterRules.js',
-    genDir + '/utils/*.js',
-    genDir + '/exec/*.js'],
-    { 'base': genDir
-    })
-    .pipe(instrument())
-    .pipe(gulp.dest('gen_cov'))
-})
-
-gulp.task('instrument', ['tsc', 'babel'], function () {
-  return gulp.src([genDir + '/**REMOVEME/*.js'])
-    .pipe(instrument())
-    .pipe(gulp.dest('gen_cov'))
-})
-*/
-
 var newer = require('gulp-newer');
-
 var imgSrc = 'src/**/*.js';
 var imgDest = 'gen';
 
 // compile standard sources with babel,
 // as the coverage input requires this
-//
 gulp.task('babel', ['tsc'], function () {
   // Add the newer pipe to pass through newer images only
   return gulp.src([imgSrc, 'gen_tsc/**/*.js'])
@@ -289,24 +130,6 @@ gulp.task('testmin', ['tsc', 'babel'], function () {
     .pipe(gulp.dest('./out/lcov.info'));
 });
 
-//    .pipe(gulp.dest('./cov')) // default file name: src-cov.js
-// })
-
-// shoudl be replaced by ESLINT and a typescript output
-// compliant config
-
-/*
-var standard = require('gulp-standard');
-
-gulp.task('standard', ['babel'], function () {
-  return gulp.src(['src/*  * /*.js', 'test/* * / *.js', 'gulpfile.js'])
-  .pipe(standard())
-  .pipe(standard.reporter('default', {
-    breakOnError: true,
-    quiet: true
-  }));
-});
-*/
 
 const eslint = require('gulp-eslint');
 
@@ -328,15 +151,8 @@ gulp.task('eslint', () => {
 });
 
 
-var gulp_shell = require('gulp-shell');
-
-gulp.task('graphviz', function () {
-  gulp.src('model/*.gv')
-  .pipe(gulp_shell([ 'dot -O -Tjpeg <%= file.path %>']));
-});
-
 // Default Task
-gulp.task('default', ['tsc', 'babel', 'eslint', 'webpack', 'doc', 'test']);
+gulp.task('default', ['tsc', 'babel', 'eslint', 'doc', 'test']);
 gulp.task('build', ['tsc', 'webpack', 'babel']);
-gulp.task('allhome', ['default', 'graphviz']);
+gulp.task('allhome', ['default']);
 gulp.task('standard', ['tsc', 'babel', 'eslint', 'test']);
