@@ -81,6 +81,7 @@ var metadata = {
     label: 'Query/second',
     axis: {
       id: 'qps',
+      min : 0,
       color: 'green',
       labelString: 'Query/s'
     },
@@ -119,14 +120,14 @@ var metadata = {
     color: 'blue'
   },
   NP: {
-    label: 'par',
+    label: 'par(int)',
     axis: {
       id: 'par',
       min: 0,
       color: 'blue',
       labelString: ''
     },
-    color: 'blue'
+    color: 'lightblue'
   },
   DUR: {
     label: 'plan dur',

@@ -301,7 +301,13 @@ textarea.addEventListener('keydown',function(e) {
     textarea.parentNode.parentNode.insertBefore(li,textarea.parentNode);
     setTimeout(function() {
       textarea.value = '';
-      htmlconnector.processMessage({ sourcedest : 'EXEC', statement : value.substring(0,140)} );
+      var r = value.substring(0,940).split(';');
+      r.forEach(s => {
+        s = s.trim();
+        if(s.length) {
+          htmlconnector.processMessage({ sourcedest : 'EXEC', statement : s + ';'} );
+        }
+      })
     }, 10);
   }
   else

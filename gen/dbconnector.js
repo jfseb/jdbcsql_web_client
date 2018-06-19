@@ -14,6 +14,7 @@ if (!jinst.isJvmCreated()) {
     console.log('adding stuff in main!now');
     jinst.addOption('-Xrs');
     var root = `${__dirname}/../../jdbcsql_throughput`; // eslint-disable-line
+    //root = path.dirname(require.resolve('jdbcsql_throughput/package.json'));
     console.log('here driver dir: ' + root + '/drivers/hsqldb.jar');
     jinst.setupClasspath([
         root + '/drivers/hsqldb.jar',
@@ -26,6 +27,8 @@ var config_path = path.dirname(require.resolve('jdbcsql_throughput/package.json'
 console.log('path to jdbc ' + config_path);
 var config = require(config_path + '/gen/configs/config_derby.js').config;
 const jdbcsql_throughput_1 = require("jdbcsql_throughput");
+//import { Constants } from 'jdbcsql_throughput';
+//import { IParallelExecutor } from '../../jdbcsql_throughput/gen/constants';
 //import { ParallelExec } from '../../jdbcsql_throughput/gen/parallel_exec';
 //import { SQLExec } from '../../jdbcsql_throughput/gen/sqlexec';
 // strongly recommended to load this first, as it brings up the jvm,
@@ -105,6 +108,7 @@ class Connector {
         this.conversationID = "";
         this.quitHook = undefined;
         this.intervals = new Map();
+        this.qps_avg = 10000; // time to calculate QPS averages
         this.onEvent = function (handler) {
             this.handler = handler;
         };
@@ -112,6 +116,7 @@ class Connector {
             console.log('running default setup, you may want to invoke Setup');
             Setup(4);
         }
+        this.qps_avg = (options && options.qps_avg) || 10000;
         //this.replyCnt = 0;
         this.answerHooks = {};
         this.monitor = new monitor_1.Monitor(parallel_exec);
@@ -158,11 +163,14 @@ class Connector {
         var arr = statement.split(";");
         var res = arr[arr.length - 1];
         res = res.trim();
-        if (res.length == 0 && arr.length > 1) {
-            res = arr[arr.length - 2];
+        var i = arr.length - 2;
+        if (res.length == 0 && i >= 0) {
+            res = arr[i];
+            --i;
         }
         res = res.trim();
         res = res + ";";
+        console.log('rectified statement ' + res);
         return res;
     }
     ;
@@ -179,6 +187,7 @@ class Connector {
         var res = {
             last_stop_t: Date.now(),
             delta_t: -Date.now(),
+            last_switch_t: Date.now(),
             statement: undefined,
             handle: undefined,
             results: [],
@@ -187,21 +196,41 @@ class Connector {
         };
         return res;
     }
-    getQPS(currentRec) {
-        // count records within a window of 3s
+    getLastRecords(currentRec) {
+        var that = this;
+        if (currentRec.results.length > 100) {
+            currentRec.results = currentRec.results.slice(currentRec.results.length - 100);
+        }
         var last_time = currentRec.results.length ? currentRec.results[currentRec.results.length - 1].time : Date.now();
-        var last3sRecords = currentRec.results.filter(r => r.time > (last_time - 3000));
+        var last3sRecords = currentRec.results.filter(r => r.time > (last_time - that.qps_avg));
+        if (last3sRecords.length < 10) {
+            last3sRecords = currentRec.results.filter((r, index) => (index + 10 > currentRec.results.length));
+        }
+        console.log('got ' + last3sRecords.length + ' records within last ' + this.qps_avg + ' sec');
+        return last3sRecords;
+    }
+    getQPS(currentRec) {
+        var last_time = currentRec.results.length ? currentRec.results[currentRec.results.length - 1].time : Date.now();
+        var last3sRecords = this.getLastRecords(currentRec);
+        console.log('got ' + last3sRecords.length + ' records within last ' + this.qps_avg + ' sec');
+        const MIN = 1000 * 60;
         if (last3sRecords.length > 5) {
             var delta_t = (last3sRecords[last3sRecords.length - 1].time - last3sRecords[0].time);
-            const MIN = 1000 * 60;
             currentRec.lastQPS = (delta_t > 0) ? (last3sRecords.length * MIN / delta_t) : currentRec.lastQPS;
         }
+        var lastSinceSwitchRecords = currentRec.results.filter(r => r.time > currentRec.last_switch_t);
+        var otherQPS = currentRec.lastQPS;
+        if (lastSinceSwitchRecords.length > 4) {
+            otherQPS = lastSinceSwitchRecords.length * MIN /
+                (lastSinceSwitchRecords[lastSinceSwitchRecords.length - 1].time - lastSinceSwitchRecords[0].time);
+        }
+        console.log('*** here qps avg' + currentRec.lastQPS + ' here total ' + otherQPS);
+        currentRec.lastQPS = currentRec.lastQPS;
         return currentRec.lastQPS;
     }
     getFAIL(currentRec) {
         // count records within a window of 3s
-        var last_time = currentRec.results.length ? currentRec.results[currentRec.results.length - 1].time : Date.now();
-        var last3sRecords = currentRec.results.filter(r => r.time > (last_time - 3000));
+        var last3sRecords = this.getLastRecords(currentRec);
         var last3sRecordsFail = last3sRecords.filter(r => !r.rc);
         if (last3sRecords.length > 5) {
             currentRec.lastFAIL = Math.floor((100 * last3sRecordsFail.length) / last3sRecords.length);
@@ -214,7 +243,7 @@ class Connector {
         // calculate failed and query averages:
         clone.QPS = this.getQPS(currentRec);
         clone.FAIL = this.getFAIL(currentRec);
-        clone.NP = currentRec.settings.parallel;
+        clone.PAR = currentRec.settings.parallel;
         if (currentRec.results.length == 0) {
             clone.time = Date.now();
         }
@@ -238,8 +267,10 @@ class Connector {
         if (!convRec || !convRec.settings.continuous) {
             return;
         }
-        convRec.statement = statement;
+        convRec.statement = this.getOneStatement(statement);
         if (convRec.settings.parallel != settings.parallel) {
+            console.log('CHANGING PARALLEL ' + settings.parallel);
+            convRec.settings.parallel = settings.parallel;
             parallel_exec.changeParallelOp(convRec.handle, settings.parallel);
         }
     }
@@ -254,14 +285,14 @@ class Connector {
                 if (!that.isActive(conversationID)) {
                     return;
                 }
-                if (Date.now() - lastOp_t < 500) {
-                    return;
-                }
-                lastOp_t = Date.now();
                 console.log('sending response' + conversationID);
                 var currentRec = that.getConvRecord(conversationID);
                 var adjustedTime = Date.now() + currentRec.delta_t;
                 currentRec.results.push({ time: adjustedTime, rc: rc });
+                if (Date.now() - lastOp_t < 500) {
+                    return;
+                }
+                lastOp_t = Date.now();
                 var rec = that.genRec(rc, currentRec);
                 rec.PAR = res.settings.parallel;
                 var response = {
@@ -284,12 +315,14 @@ class Connector {
             statement: statement,
             settings: settings,
             last_stop_t: Date.now(),
+            last_switch_t: 0,
             handle: handle,
             delta_t: (currentRec.delta_t - delta),
             lastFAIL: currentRec.lastFAIL,
             lastQPS: currentRec.lastQPS,
             results: currentRec.results
         };
+        res.last_switch_t = Date.now() + res.delta_t;
         return res;
     }
     startMonitor() {

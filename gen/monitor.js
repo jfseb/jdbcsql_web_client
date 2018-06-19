@@ -54,7 +54,7 @@ class Monitor {
             forcename: "monitor",
             continuous: true,
             t_last: 0,
-            every_t: 1000,
+            every_t: 3000,
         }, 
         /*callbacks :*/
         {
@@ -97,10 +97,7 @@ class Monitor {
         var actual_best_avg = 0;
         debuglog('got a best record!!');
         exports.Keys.forEach(key => {
-            console.log('now key  ' + key);
-            console.log('now rec' + record);
             var rec = record.get(key);
-            console.log('rec ' + rec);
             var sortedIntArr = Array.from(rec.keys()).map(k => parseInt(' ' + k)).sort();
             debuglog('sortedIntArr' + sortedIntArr);
             values[key] = sortedIntArr.reduce((prev, time) => {
@@ -133,12 +130,12 @@ class Monitor {
             time: Date.now(),
             QPS: 0,
             FAIL: 0,
-            NP: 0,
+            PAR: avgx.NR_PARALLEL_PLAN,
             DUR: avgx.AGGR_PLAN_EXEC_DURATION,
             MAXMEM: avgx.MAX_MEM_EVER,
             CPU: avgx.CPU_UTILIZATION,
             MEM: avgx.MEM_UTILIZATION,
-            PAR: avgx.NR_PARALLEL_PLAN
+            NP: avgx.NR_PARALLEL_PLAN
         };
         this.dumpAllResults([result]);
         console.log(result.time +

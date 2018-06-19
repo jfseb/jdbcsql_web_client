@@ -1,5 +1,5 @@
 import { Monitor } from './monitor';
-import { IParallelExecutor } from '../../jdbcsql_throughput/gen/constants';
+import { Constants } from 'jdbcsql_throughput';
 export declare function Setup(nrexec: number, explicitconfig?: any): void;
 export interface IRecord {
     time: number;
@@ -25,6 +25,7 @@ export interface IConvRec {
     settings?: ISettings;
     handle?: string;
     last_stop_t: number;
+    last_switch_t: number;
     delta_t: number;
     lastQPS: number;
     lastFAIL: number;
@@ -42,6 +43,7 @@ export declare class Connector {
     conversationID: string;
     quitHook: any;
     intervals: Map<string, IConvRec>;
+    qps_avg: number;
     monitor: Monitor;
     constructor(options: any);
     setAnswerHook(answerHook: any, id: any): void;
@@ -49,12 +51,13 @@ export declare class Connector {
     /**
      * Expose the parallel executor
      */
-    getParallelExecutor(): IParallelExecutor;
+    getParallelExecutor(): Constants.IParallelExecutor;
     isActive(conversationID: string): boolean;
     disconnect(conversationID: string): void;
     getOneStatement(statement: string): string;
     getConvRecord(conversationID: string): IConvRec;
     getDefaultConvRecord(conversationID: string): IConvRec;
+    getLastRecords(currentRec: IConvRec): ResultRec[];
     getQPS(currentRec: IConvRec): number;
     getFAIL(currentRec: IConvRec): number;
     genRec(rc: boolean, currentRec: IConvRec): IRecord;

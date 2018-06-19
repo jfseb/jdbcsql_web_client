@@ -28,10 +28,27 @@ parser.addArgument(
   }
 );
 parser.addArgument(
+  [ '-Q', '--qps_avg' ],
+  {
+    help: 'Query per second/minute window in ms (e.g. 10000)',
+    type : 'int',
+    nargs : argsparse.Const.OPTIONAL,
+    defaultValue : 10000,
+    metavar : 'PARALLEL_EXEC'
+  }
+);
+parser.addArgument(
   [ '--simul' ],
   {
     help: 'bar foo',
     nargs: 0
+  }
+);
+parser.addArgument(
+  ['--vora' ],
+  {
+    help: 'use vora driver and config',
+    nargs : 0,
   }
 );
 parser.addArgument(
@@ -55,6 +72,17 @@ parser.addArgument(
 var args = parser.parseArgs();
 
 console.log(JSON.stringify(args));
+
+// read a config file 
+var fs = require('fs');
+var cfgdata = undefined;
+try {
+var dataf = fs.readFileSync('jdbcsql_config.json');
+    cfgdata = JSON.parse(dataf);
+} catch(e) 
+{
+  console.log('could not read ./jdbcsql_config.json, falling back to default config' + e)
+}
 
 
 var http = require('http');
@@ -80,7 +108,7 @@ var compression = require('compression');
 var app = express();
 
 app.locals.pretty = true;
-app.set('port', process.env.PORT || 42042);
+app.set('port', process.env.PORT || cfgdata.port || 42042);
 app.set('views', __dirname + '/app/server/views');
 app.set('view engine', 'jade');
 app.use(cookieParser());
@@ -191,15 +219,79 @@ var Monitor = require('./gen/monitor.js');
 
 setTimeout(function() {
 
+
+
+  var config = undefined;
   var htmlconnector;
   var connector;
   if(args.simul) {
     htmlconnector = require('./gen/connector.js');
     connector = new htmlconnector.Connector();
   } else {
+    if(cfgdata) {
+      var path = require('path');
+      var config_path = path.dirname(require.resolve('jdbcsql_throughput/package.json'));
+      console.log('path to jdbc ' + config_path);
+      var jinst = require('jdbc/lib/jinst');
+
+      if (!jinst.isJvmCreated()) {
+       console.log('adding drivers from ' + cfgdata.classpath);
+        jinst.addOption('-Xrs');     
+        jinst.setupClasspath(cfgdata.classpath);
+      }
+
+      var Pool = require('jdbc');
+
+      config = cfgdata.config;
+      var testpool = new Pool(config, function(err, ok) {
+        console.log('here we try pool' + err);
+        console.log('here we try pool' + ok);
+      });
+      testpool.initialize(function() {});
+    }
+
+
+    if (args.vora) {
+      var path = require('path');
+      var config_path = path.dirname(require.resolve('jdbcsql_throughput/package.json'));
+      console.log('path to jdbc ' + config_path);
+      var jinst = require('jdbc/lib/jinst');
+
+      if (!jinst.isJvmCreated()) {
+       console.log('adding vora driver');
+        jinst.addOption('-Xrs');     
+          jinst.setupClasspath([  //root + './drivers/hsqldb.jar',
+        '/home/D026276/localgit/sjdbcsql_throughput/drivers/acmereports.jar']);
+      }
+
+      var Pool = require('jdbc');
+
+      config = require(config_path + '/gen/configs/config_vora.js').config;
+      config = {
+        //    url: 'jdbc:hsqldb:hsql://localhost/xdb',
+        //    user: 'SA',
+            libpath : './drivers/hl-jdbc-2.3.90.jar',
+            drivername : 'com.sap.vora.jdbc.VoraDriver',
+            url : 'jdbc:hanalite://' + '127.0.0.1:2202',
+            //url : 'jdbc:hanalite://' + '127.0.0.1:2202' + '/?resultFormat=binary',    
+            user : '',
+            logging : 'info',
+            password: '',
+            minpoolsize: 2,
+            maxpoolsize: 500
+        //    properties : {user: '', password : ''}
+          };
+          var testpool = new Pool(config, function(err, ok) {
+            console.log('here we try pool' + err);
+            console.log('here we try pool' + ok);
+           });
+           testpool.initialize(function() {});
+    }
+
     htmlconnector = require('./gen/dbconnector.js');
-    htmlconnector.Setup(args.parallel);
-    connector = new htmlconnector.Connector();
+    console.log('config setup is ' + JSON.stringify(config))
+    htmlconnector.Setup(args.parallel,config);
+    connector = new htmlconnector.Connector( { qps_avg : args.qps_avg });
     if(args.data > 0) {
       connector.getParallelExecutor().startSequentialSimple('CREATE TABLE IF NOT EXISTS T2 (id  bigint, NAME varchar(200), "VALUE" int, NR int);').catch(err => console.log(err));
       //connector.getParallelExecutor().startSequentialSimple('INSERT INTO SYSTABNOW VALUES( CREATE TABLE SYSTABMON( NAME : string, VALUE: int, NR : int) IF NOT EXIST;').catch(err => console.log(err));
