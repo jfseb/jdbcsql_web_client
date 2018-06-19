@@ -206,6 +206,9 @@ function encodeStrAsHTML(rawstr) {
   var encodedStr = rawstr.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
     return '&#'+i.charCodeAt(0)+';';
   });
+  encodedStr = encodedStr.replace(/</g,'&lt;');
+  encodedStr = encodedStr.replace(/>/g,'&gt;');
+  encodedStr = encodedStr.replace(/ /g,'&nbsp;');
   return encodedStr.replace(/\n/g,'<br/>');
 }
 
