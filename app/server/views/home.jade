@@ -30,6 +30,10 @@ html
 					div#aDropDown.dropdown-content
 						a(href="/about") about
 				li.nav.center(style="float:center!important;padding: 8px 10px") SQL Client
+				li.nav.right(style="float:right!important;padding:8px 10px")
+					input#clipboard(style="visibility:hidden")
+					button#btncleartop clear top
+					button#btncopyhistory copy history
 
 		div(style='margin-top:20px', data-theme='a')
 		div.well
@@ -80,7 +84,7 @@ html
 								button#btnPurgeLeftHalf(style='pressed') remove left half
 
 
-					testarea#result.ui-input-textX(rows='5') 
+					testarea#result.ui-input-textX(rows='5')
 
 
 	div(style="width:90%")

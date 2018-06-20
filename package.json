@@ -1,23 +1,21 @@
 {
   "name": "jdbc_web_client",
-  "version": "0.0.1",
-  "description": "Samle jdbc client",
+  "version": "0.0.2",
+  "description": "Sample jdbc client",
   "main": "main.js",
   "repository": {
     "type": "git",
-    "url": "http://github.com/jfseb/jdbc-sqlclient.git"
+    "url": "http://github.com/jfseb/jdbcsql_web_client.git"
   },
   "bugs": {
-    "url": "http://github.com/jfseb/jdbc-sqlclient/issues"
+    "url": "http://github.com/jfseb/jdbcsql_web_client/issues"
   },
   "scripts": {
     "pretest": "bash bin/startdbs",
     "posttest": "bash bin/stopdbs",
     "setup": "gulp default",
     "test": "gulp test",
-    "testOld": "./node_modules/.bin/nodeunit test/match test/utils && eslint",
-    "startConsole": "node console_app.js",
-    "run": "nodeunit",
+    "run": "node server --simul",
     "start": "node server",
     "coverage": "./node_modules/.bin/nyc --source-map false nodeunit test/match test/exec test/ui test/model test/bot test/utils ",
     "coverreportplain": "./node_modules/.bin/nyc --source-map false report --reporter=text-lcov ",

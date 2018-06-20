@@ -78,6 +78,13 @@ function History(options) {
   debug('here pos ' + this._pos);
 }
 
+History.prototype.setData= function(data) {
+  this._data = data;
+  if(this._pos > this._data.length) {
+    this._pos = this._data.length -1;
+  }
+} 
+
 History.prototype.get = function () {
   if(this._pos > this._data.length) {
     console.log('this shoudl not happen');
@@ -128,6 +135,12 @@ History.prototype.push = function (oNext) {
     return;
   }
 };
+
+History.prototype.getAll = function() {
+  return { pos: this._pos,
+           entries: this._data.slice(0)
+         };
+}
 
 History.prototype.save = function () {
   if (this._save) {
@@ -187,7 +200,7 @@ function loadHistory(cb) {
 }
 
 window.inputHistory = new  window.MyHistory({
-  length : 80,
+  length : 200,
   save: saveHistory,
   load: loadHistory
 });
@@ -232,7 +245,23 @@ var growingTextarea = new Autogrow(textarea);
 function updateText(eText) {
   var u = textarea.value;
 }
-
+function updateTextPaste(eText) {
+  var oldval = textarea.value;
+  var t = eText.clipboardData.getData('text').trim();
+  var header =  '--HISTORY>>START\n';
+  var footer = '\n--HISTORY<<END';
+  t = t.replace(/\r\n/g,"\n");
+  if(t.startsWith(header) && t.endsWith(footer))
+  {
+    var res = t.substring(header.length);
+    res = res.substring(0, res.length - footer.length);
+    var arr = res.split("\n--HISTORY\n");
+    window.inputHistory.setData(arr);
+    window.alert("" + window.inputHistory._data.length + " history records retrieved from clipboard");
+    textarea.value = oldval;
+    eText.preventDefault();
+  }
+}
 
 function makeLi(value, sType) {
   if(sType !== 'request' && sType !== 'response') {
@@ -281,8 +310,10 @@ function moveCursorToEnd(textarea) {
   }, 1);
 }
 
+
+
 textarea.addEventListener('change',updateText);
-textarea.addEventListener('paste',updateText);
+textarea.addEventListener('paste',updateTextPaste);
 textarea.addEventListener('keyup',updateText);
 
 textarea.addEventListener('keydown',function(e) {
@@ -310,7 +341,7 @@ textarea.addEventListener('keydown',function(e) {
         if(s.length) {
           htmlconnector.processMessage({ sourcedest : 'EXEC', statement : s + ';'} );
         }
-      })
+      });
     }, 10);
   }
   else
@@ -436,6 +467,75 @@ $(document).ready(function(){
      textarea.value});
   });
 
+  function isRequest(node)
+  {
+    return node.className && node.className.indexOf('request') >= 0;
+  }
+
+  function countTrailingRequests(parentNode,k)
+  { var res = 0;
+    for(var i = k + 1 ; i < parentNode.childNodes.length; ++i)
+    {
+      if( isRequest(parentNode.childNodes[i]))
+      {
+        res++;
+      }
+    }
+    return res;
+  }
+
+  $('#btncleartop').click(function(){
+    var parent = textarea.parentNode.parentNode;
+    var  nodeRemoved = true;
+    while( nodeRemoved )
+    {
+      nodeRemoved = false;
+      for(var i = 0; i <  parent.childNodes.length ; i++)
+      {
+        var node = parent.childNodes[i];
+        if(node.className &&  (node.className.indexOf('response') >= 0))
+        {
+          nodeRemoved = true;
+          parent.removeChild(node);
+          --i;
+        }
+        if(isRequest(node))
+        {
+          if(node.className && node.className.indexOf('common') >= 0)
+          {
+            nodeRemode = true;
+            parent.removeChild(node);
+            --i;
+          }
+        }
+      }
+    }
+  });
+
+  var inElement = document.getElementById('clipboard');
+
+  $('#btncopyhistory').click(function(){
+    var abc = textarea.value;
+    
+    var d = "--HISTORY>>START\n" + 
+      window.inputHistory._data.join("\n--HISTORY\n")
+      + "\n--HISTORY<<END\n";
+    inElement = textarea;
+    inElement.value = d;
+
+    if (inElement.createTextRange) {
+      var range = inElement.createTextRange();
+      if (range) {
+			 range.execCommand('Copy');
+      }
+    } else {
+      inElement.select();
+      document.execCommand("copy");
+      textarea.value = abc;
+      window.alert("" + window.inputHistory._data.length + " history records copied to clipboard");
+      textarea.focus();
+    }
+  });
 
   $('#parallel').on('change paste keyup', function() {
     var val = 1;
