@@ -68,6 +68,13 @@ parser.addArgument(
     metavar : 'NR_DATA'
   }
 );
+parser.addArgument(
+  [ '--INTERNAL' ],
+  {
+    help: 'internal testing',
+    nargs: 0
+  }
+);
 
 var args = parser.parseArgs();
 
@@ -167,12 +174,16 @@ require('./app/server/routes')(app);
 
 var server = http.createServer(app);
 
-server.listen(app.get('port'), function(){
-  console.log('Express server listening on port ' + app.get('port'));
-});
+if(process.argv.indexOf('--INTERNAL') == -1) {
+  server.listen(app.get('port'), function(){
+    console.log('Express server listening on port ' + app.get('port'));
+  });
+}
+
 
 //var server = require('http').createServer(app);
-var io = require('socket.io').listen(server);
+var io = require('socket.io');
+io = io.listen(server);
 
 
 //io.use(ios(l_session));
@@ -198,8 +209,12 @@ app.get('/favicon.ico', function (req, res) {
   res.sendfile(__dirname + '/public/css/ui/droplet.ico');
 });
 
-server.listen(process.env.PORT || 42042);
+//server.listen(process.env.PORT || 42042);
 
+module.exports = {
+  server : server,
+  app: app
+};
 
 var Monitor = require('./gen/monitor.js');
 // heroku requires the socket to be taken within 60 seconds,
@@ -207,8 +222,6 @@ var Monitor = require('./gen/monitor.js');
 // it
 
 setTimeout(function() {
-
-
 
   var config = undefined;
   var htmlconnector;
