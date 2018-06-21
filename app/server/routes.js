@@ -96,7 +96,7 @@ module.exports = function(app) {
       dbconnector.runStatements(query.query,
         function(result) {
           res.setHeader('Content-Type', 'text/plain');
-          res.status(200).send(result.replace(/\n/g,'\r\n');
+          res.status(200).send(result.replace(/\n/g,'\r\n'));
         }
       );
     }
