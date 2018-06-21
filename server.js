@@ -73,15 +73,15 @@ var args = parser.parseArgs();
 
 console.log(JSON.stringify(args));
 
-// read a config file 
+// read a config file
 var fs = require('fs');
 var cfgdata = undefined;
 try {
-var dataf = fs.readFileSync('jdbcsql_config.json');
-    cfgdata = JSON.parse(dataf);
-} catch(e) 
+  var dataf = fs.readFileSync('jdbcsql_config.json');
+  cfgdata = JSON.parse(dataf);
+} catch(e)
 {
-  console.log('could not read ./jdbcsql_config.json, falling back to default config' + e)
+  console.log('could not read ./jdbcsql_config.json, falling back to default config' + e);
 }
 
 
@@ -89,12 +89,7 @@ var http = require('http');
 var express = require('express');
 var session = require('express-session');
 var bodyParser = require('body-parser');
-//var errorHandler = require('errorhandler');
-// socket.io raised unhandled errors
-//var pg = require('pg');
 var cookieParser = require('cookie-parser');
-
-//var pgSession = require('connect-pg-simple')(session);
 
  // conf = require('./config.json');
 
@@ -108,7 +103,7 @@ var compression = require('compression');
 var app = express();
 
 app.locals.pretty = true;
-app.set('port', process.env.PORT || cfgdata.port || 42042);
+app.set('port', process.env.PORT || (cfgdata && cfgdata.port) || 42042);
 app.set('views', __dirname + '/app/server/views');
 app.set('view engine', 'jade');
 app.use(cookieParser());
@@ -162,18 +157,6 @@ var l_session = session({
   // remember to create sessions table in DB!
   //https://www.npmjs.com/package/connect-pg-simple
 
-/*
-Use the default memory store, not a db backed store
-
-  store : new pgSession({
-    pg : pg,                                  // Use global pg-module
-    conString : pglocalurl  //process.env.FOO_DATABASE_URL, // Connect using something else than default DATABASE_URL env variable
-    //	tableName : 'user_sessions'               // Use another table-name than the default "session" one
-  }),
-
-  */
-//});
-
 //var sharedsession = require('express-socket.io-session');
 
 app.use(l_session);
@@ -209,6 +192,12 @@ app.get('/', function (req, res) {
   res.sendfile(__dirname + '/public/index.html');
 });
 
+
+app.get('/favicon.ico', function (req, res) {
+  console.log('serving icon!!!!!!!!!!!!!!!!');
+  res.sendfile(__dirname + '/public/css/ui/droplet.ico');
+});
+
 server.listen(process.env.PORT || 42042);
 
 
@@ -235,8 +224,8 @@ setTimeout(function() {
       var jinst = require('jdbc/lib/jinst');
 
       if (!jinst.isJvmCreated()) {
-       console.log('adding drivers from ' + cfgdata.classpath);
-        jinst.addOption('-Xrs');     
+        console.log('adding drivers from ' + cfgdata.classpath);
+        jinst.addOption('-Xrs');
         jinst.setupClasspath(cfgdata.classpath);
       }
 
@@ -258,10 +247,10 @@ setTimeout(function() {
       var jinst = require('jdbc/lib/jinst');
 
       if (!jinst.isJvmCreated()) {
-       console.log('adding vora driver');
-        jinst.addOption('-Xrs');     
-          jinst.setupClasspath([  //root + './drivers/hsqldb.jar',
-        '/home/D026276/localgit/sjdbcsql_throughput/drivers/acmereports.jar']);
+        console.log('adding vora driver');
+        jinst.addOption('-Xrs');
+        jinst.setupClasspath([  //root + './drivers/hsqldb.jar',
+          '/home/D026276/localgit/sjdbcsql_throughput/drivers/acmereports.jar']);
       }
 
       var Pool = require('jdbc');
@@ -270,26 +259,26 @@ setTimeout(function() {
       config = {
         //    url: 'jdbc:hsqldb:hsql://localhost/xdb',
         //    user: 'SA',
-            libpath : './drivers/hl-jdbc-2.3.90.jar',
-            drivername : 'com.sap.vora.jdbc.VoraDriver',
-            url : 'jdbc:hanalite://' + '127.0.0.1:2202',
-            //url : 'jdbc:hanalite://' + '127.0.0.1:2202' + '/?resultFormat=binary',    
-            user : '',
-            logging : 'info',
-            password: '',
-            minpoolsize: 2,
-            maxpoolsize: 500
+        libpath : './drivers/hl-jdbc-2.3.90.jar',
+        drivername : 'com.sap.vora.jdbc.VoraDriver',
+        url : 'jdbc:hanalite://' + '127.0.0.1:2202',
+            //url : 'jdbc:hanalite://' + '127.0.0.1:2202' + '/?resultFormat=binary',
+        user : '',
+        logging : 'info',
+        password: '',
+        minpoolsize: 2,
+        maxpoolsize: 500
         //    properties : {user: '', password : ''}
-          };
-          var testpool = new Pool(config, function(err, ok) {
-            console.log('here we try pool' + err);
-            console.log('here we try pool' + ok);
-           });
-           testpool.initialize(function() {});
+      };
+      var testpool = new Pool(config, function(err, ok) {
+        console.log('here we try pool' + err);
+        console.log('here we try pool' + ok);
+      });
+      testpool.initialize(function() {});
     }
 
     htmlconnector = require('./gen/dbconnector.js');
-    console.log('config setup is ' + JSON.stringify(config))
+    console.log('config setup is ' + JSON.stringify(config));
     htmlconnector.Setup(args.parallel,config);
     connector = new htmlconnector.Connector( { qps_avg : args.qps_avg });
     if(args.data > 0) {

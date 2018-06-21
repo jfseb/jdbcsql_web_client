@@ -1,6 +1,7 @@
 import { Monitor } from './monitor';
 import { Constants } from 'jdbcsql_throughput';
 export declare function Setup(nrexec: number, explicitconfig?: any): void;
+export declare function runStatements(statements: string, cb: (res: string) => void): void;
 export interface IRecord {
     time: number;
     QPS: number;

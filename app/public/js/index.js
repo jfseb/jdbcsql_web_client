@@ -83,7 +83,7 @@ History.prototype.setData= function(data) {
   if(this._pos > this._data.length) {
     this._pos = this._data.length -1;
   }
-} 
+};
 
 History.prototype.get = function () {
   if(this._pos > this._data.length) {
@@ -138,9 +138,9 @@ History.prototype.push = function (oNext) {
 
 History.prototype.getAll = function() {
   return { pos: this._pos,
-           entries: this._data.slice(0)
-         };
-}
+    entries: this._data.slice(0)
+  };
+};
 
 History.prototype.save = function () {
   if (this._save) {
@@ -244,22 +244,24 @@ var growingTextarea = new Autogrow(textarea);
 // paste
 function updateText(eText) {
   var u = textarea.value;
+  document.getElementById('hreffire').href = window.location.href + '/../query?query=' + encodeURIComponent(u);
 }
 function updateTextPaste(eText) {
   var oldval = textarea.value;
   var t = eText.clipboardData.getData('text').trim();
   var header =  '--HISTORY>>START\n';
   var footer = '\n--HISTORY<<END';
-  t = t.replace(/\r\n/g,"\n");
+  t = t.replace(/\r\n/g,'\n');
   if(t.startsWith(header) && t.endsWith(footer))
   {
     var res = t.substring(header.length);
     res = res.substring(0, res.length - footer.length);
-    var arr = res.split("\n--HISTORY\n");
+    var arr = res.split('\n--HISTORY\n');
     window.inputHistory.setData(arr);
-    window.alert("" + window.inputHistory._data.length + " history records retrieved from clipboard");
+    window.alert('' + window.inputHistory._data.length + ' history records retrieved from clipboard');
     textarea.value = oldval;
     eText.preventDefault();
+    return;
   }
 }
 
@@ -516,10 +518,10 @@ $(document).ready(function(){
 
   $('#btncopyhistory').click(function(){
     var abc = textarea.value;
-    
-    var d = "--HISTORY>>START\n" + 
-      window.inputHistory._data.join("\n--HISTORY\n")
-      + "\n--HISTORY<<END\n";
+
+    var d = '--HISTORY>>START\n' +
+      window.inputHistory._data.join('\n--HISTORY\n')
+      + '\n--HISTORY<<END\n';
     inElement = textarea;
     inElement.value = d;
 
@@ -530,9 +532,9 @@ $(document).ready(function(){
       }
     } else {
       inElement.select();
-      document.execCommand("copy");
+      document.execCommand('copy');
       textarea.value = abc;
-      window.alert("" + window.inputHistory._data.length + " history records copied to clipboard");
+      window.alert('' + window.inputHistory._data.length + ' history records copied to clipboard');
       textarea.focus();
     }
   });

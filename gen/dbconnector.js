@@ -66,6 +66,35 @@ function Setup(nrexec, explicitconfig) {
     parallel_exec = new jdbcsql_throughput_1.ParallelExecutor.ParallelExec(parpool.getExecutors());
 }
 exports.Setup = Setup;
+function runStatements(statements, cb) {
+    var arr = statements.split(';');
+    arr = arr.map(s => s.trim());
+    arr = arr.filter(s => s.length);
+    arr = arr.map(s => s + ";");
+    var cnt = 0;
+    var fullResult = "";
+    arr.forEach(statement => {
+        parallel_exec.startOpSequential("seqstatement", statement, {
+            progress: function (op, rc) {
+                console.log('end sequential ' + op.lastRC + ' ' + op.lastResult);
+                var lr = op.lastResult;
+                if (op.lastRC && _.isArray(op.lastResult)) {
+                    lr = (new jdbcsql_throughput_1.SQLExec.SQLExec({})).makeAsciiTable(op.lastResult);
+                }
+                else {
+                    lr = "" + op.lastResult;
+                }
+                fullResult += lr;
+                fullResult += "\n";
+                ++cnt;
+                if (cnt == arr.length) {
+                    cb(fullResult);
+                }
+            }
+        });
+    });
+}
+exports.runStatements = runStatements;
 ;
 var MAXMEM = 10;
 var CPU = 80;

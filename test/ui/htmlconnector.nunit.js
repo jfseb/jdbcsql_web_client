@@ -6,13 +6,15 @@
 
 /* eslint-disable */
 
-var process = require('process');
-var root = (process.env.FSD_COVERAGE) ? '../../gen_cov' : '../../gen';
+var root =  '../../gen';
+
+
+var tap = require('tap');
 
 const HtmlConnector = require(root + '/ui/htmlconnector.js');
 
-exports.testWithIdHook = function (test) {
-  test.expect(4);
+tap.test('testWithIdHook', function (test) {
+  test.plan(4);
   var address = { user: 'abc'};
   var out = new HtmlConnector.HTMLConnector({ user : 'auser', bot : "bbot"});
   out.startConversation(address, function(err, adr){
@@ -22,10 +24,10 @@ exports.testWithIdHook = function (test) {
     test.equal(adr=== address, false);
     test.done();
   });
-}
+});
 
 
-exports.testWithIdHook = function (test) {
+tap.test('testWithIdHook', function (test) {
   var out = new HtmlConnector.HTMLConnector({ user : "auser", bot : "bbot"});
   var hook1 = { a : 0, cnt : 0};
   out.setAnswerHook(function (a,b,c) {
@@ -142,4 +144,4 @@ exports.testWithIdHook = function (test) {
   test.deepEqual(hookDone.a, null);
 
   test.done();
-};
+});

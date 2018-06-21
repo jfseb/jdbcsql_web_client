@@ -86,6 +86,38 @@ export function Setup(nrexec :number, explicitconfig? : any) {
   parallel_exec = new ParallelExecutor.ParallelExec(parpool.getExecutors());
 }
 
+export function runStatements(statements : string, cb : (res : string) => void) {
+  var arr = statements.split(';');
+  arr = arr.map(s => s.trim());
+  arr = arr.filter(s => s.length);
+  arr = arr.map( s => s + ";");
+  var cnt = 0;
+  var fullResult = "";
+  arr.forEach( statement =>
+  {
+    parallel_exec.startOpSequential("seqstatement",
+      statement,
+      {
+        progress : function(op,rc) {
+          console.log('end sequential ' + op.lastRC + ' ' + op.lastResult);
+          var lr = op.lastResult;
+          if(op.lastRC && _.isArray(op.lastResult)) {
+            lr = (new SQLExec.SQLExec({})).makeAsciiTable(op.lastResult);
+          } else {
+            lr = "" + op.lastResult;
+          }
+          fullResult += lr;
+          fullResult += "\n";
+          ++cnt;
+          if(cnt == arr.length) {
+            cb(fullResult);
+          }
+        }
+      }
+    )
+  });
+}
+
 /*
  executor = new SQLExec({});
  parpool = new  ParallelPool(4, testpool, config, undefined );
@@ -303,7 +335,7 @@ export class Connector {
     var lastSinceSwitchRecords = currentRec.results.filter( r => r.time > currentRec.last_switch_t);
     var otherQPS = currentRec.lastQPS;
     if(lastSinceSwitchRecords.length > 4) {
-      otherQPS = lastSinceSwitchRecords.length * MIN / 
+      otherQPS = lastSinceSwitchRecords.length * MIN /
       (lastSinceSwitchRecords[lastSinceSwitchRecords.length-1].time - lastSinceSwitchRecords[0].time);
     }
     console.log('*** here qps avg' + currentRec.lastQPS + ' here total ' + otherQPS);
@@ -380,7 +412,7 @@ export class Connector {
             return;
           }
 
-   
+
           console.log('sending response' + conversationID);
           var currentRec = that.getConvRecord(conversationID);
           var adjustedTime = Date.now() + currentRec.delta_t;
@@ -388,7 +420,7 @@ export class Connector {
           if ( Date.now() - lastOp_t < 500) {
             return;
           }
-          lastOp_t = Date.now();          
+          lastOp_t = Date.now();
           var rec = that.genRec(rc, currentRec);
           rec.PAR = res.settings.parallel;
           var response: IMessage = {
@@ -419,7 +451,7 @@ export class Connector {
       lastQPS : currentRec.lastQPS,
       results: currentRec.results
     };
-    res.last_switch_t = Date.now() + res.delta_t; 
+    res.last_switch_t = Date.now() + res.delta_t;
     return res;
   }
 
