@@ -1,7 +1,7 @@
 {
   "name": "jdbcsql_web_client",
-  "version": "0.0.4",
-  "description": "Sample jdbc client",
+  "version": "0.0.5",
+  "description": "Sample web based jdbc client with chart for system monitoring",
   "main": "server.js",
   "repository": {
     "type": "git",
