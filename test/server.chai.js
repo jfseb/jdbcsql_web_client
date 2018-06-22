@@ -56,3 +56,136 @@ tap.test('testGetQuery', function (test) {
   });
 }, 18);
 });
+
+tap.test('testSocketIO', function (test) {
+  test.plan(3);
+  setTimeout( function() {
+    var ioOptions = {
+      transportOptions : { polling : {}},
+    //  forceNew : true,
+      reconnection : true
+    };
+    var srv = server.server.listen(3000);
+    io = require('socket.io-client');
+    var sender = io('http://localhost:3000/',
+    ioOptions
+    );
+
+    //var sender = io('http://localhost:3000/socket.io' , ioOptions);
+    //var receiver = io('http://localhost:3000/', ioOptions);
+    //srv.start()
+
+    var msgStart = { name: "hithere", body :
+      { sourcedest : 'PAR' ,
+      statement : query,
+      op: 'START',
+      settings : {
+      continuous : true,
+      parallel: 2
+      }
+    },
+      conversationid : "conv1" };
+    var msgChange = { name: "hithere", body :
+      { sourcedest : 'PAR' ,
+      statement : query,
+      op: 'CHANGE',
+      settings : {
+      continuous : true,
+      parallel: 4
+      }
+    },
+      conversationid : "conv1" };
+    var msgStop = { name: "hithere", body :
+      { sourcedest : 'PAR' ,
+      statement : query,
+      op: 'STOP',
+      settings : {
+      continuous : false,
+      parallel: 4
+      }
+    },
+      conversationid : "conv1" };
+
+
+    sender.on('reconnect_attempt', () => console.log('reconnedt atteam'));
+    sender.on('connect', function(amsg, bmsg) {
+      console.log('got connection' + amsg + ' ' + bmsg);
+ /*     setTimeout( ()=> {
+        sender.emit('message', msg);
+        console.log('emit again')
+        sender.emit('login', msg);
+        console.log('emit again')
+
+        sender.emit('sqlclient', msg);
+        console.log('emit again')
+      },5000); */
+    sender.on('error', (a,b) => {
+      console.log('here error' + a + ' ' + b);
+    })
+    sender.send('sqlclient', 'abc');
+    sender.emit('message', 'abc');
+      console.log('emitted again');
+    })
+    sender.on('event', msg => {
+      console.log('event ' + JSON.stringify(msg));
+    });
+    sender.on('sqlclient', function(msg) {
+      console.log('here msg result' + JSON.stringify(msg));
+      var id = msg && msg.id;
+      console.log(' ' + cnt + 'here conv id ' + id);
+      ++cnt;
+      if(cnt == 5) {
+        console.log('FIRE CHANGE!!!!');
+        test.equal(msg.sourcedest, 'CHART');
+        sender.emit('sqlclient',msgChange);
+      }
+      if(cnt == 8) {
+        console.log('FIRE STOP!!!')
+        test.equal(msg.sourcedest, 'CHART');
+        sender.emit('sqlclient',msgStop);
+        setTimeout( () => {
+          sender.emit('sqlclient',msgStart);
+        }, 100);
+      }
+      if(cnt == 15) {
+        test.equal(msg.sourcedest, 'CHART');
+        sender.disconnect();
+        setTimeout( ()=> srv.close(), 100);
+        test.done();
+      }
+    });
+    sender.emit('message', msgStart);
+    sender.emit('sqlclient', { name: "hithere", body :
+      { sourcedest : 'PAR' ,
+      statement : query,
+      op: 'START',
+      settings : {
+      continuous : true,
+      parallel: 2
+      }
+    },
+      conversationid : "conv1" }
+    );
+    console.log('emitted');
+    var cnt = 0;
+    /*
+    sender.on('sqlclient', function(msg) {
+      var id = msg.id;
+      console.log('here result' + JSON.stringify(msg));
+
+
+      test.true(msg.sourcedest == 'CHART');
+
+      ++cnt;
+      if(cnt > 10) {
+        sender.disconnect();
+        test.done();
+      }
+    });
+    */
+}, 1000);
+});
+
+
+
+
