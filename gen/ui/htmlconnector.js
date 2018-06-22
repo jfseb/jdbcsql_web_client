@@ -87,11 +87,6 @@ var HTMLConnector = function () {
     }
     done(null);
   };
-  HTMLConnector.prototype.startConversation = function (address, cb) {
-    var adr = Object.assign({}, address); // utils.clone(address)
-    adr.conversation = { id: 'Convo1' };
-    cb(null, adr);
-  };
   return HTMLConnector;
 }();
 

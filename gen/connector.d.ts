@@ -31,5 +31,4 @@ export declare class Connector {
     processMessage(msg: IMessage): void;
     onEvent: (handler: any) => void;
     send(messages: IMessage[], done?: any): void;
-    startConversation: (address: any, cb: any) => void;
 }

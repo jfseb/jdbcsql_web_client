@@ -14,20 +14,6 @@ var tap = require('tap');
 const HtmlConnector = require(root + '/ui/htmlconnector.js');
 
 tap.test('testWithIdHook', function (test) {
-  test.plan(4);
-  var address = { user: 'abc'};
-  var out = new HtmlConnector.HTMLConnector({ user : 'auser', bot : "bbot"});
-  out.startConversation(address, function(err, adr){
-    test.equal(err,null);
-    test.equal(adr.user,'abc');
-    test.equal(adr.conversation.id,'Convo1');
-    test.equal(adr=== address, false);
-    test.done();
-  });
-});
-
-
-tap.test('testWithIdHook', function (test) {
   var out = new HtmlConnector.HTMLConnector({ user : "auser", bot : "bbot"});
   var hook1 = { a : 0, cnt : 0};
   out.setAnswerHook(function (a,b,c) {

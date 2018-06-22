@@ -67,11 +67,6 @@ class Connector {
         this.onEvent = function (handler) {
             this.handler = handler;
         };
-        this.startConversation = function (address, cb) {
-            var adr = Object.assign({}, address); // utils.clone(address)
-            adr.conversation = { id: 'Convo1' };
-            cb(null, adr);
-        };
         //this.replyCnt = 0;
         this.answerHooks = {};
         //this.user = options && options.user || 'user1';

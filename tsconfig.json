@@ -30,6 +30,7 @@
     ],
     "files": [
         "src/connector.ts",
+        "src/server.ts",
         "src/monitor.ts",
         "src/dbconnector.ts"
     ],
