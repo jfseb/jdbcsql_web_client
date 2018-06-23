@@ -14,7 +14,7 @@ const monitor_1 = require("./monitor");
 if (!jinst.isJvmCreated()) {
     console.log('adding stuff in main!now');
     jinst.addOption('-Xrs');
-    var root = `${__dirname}/../../jdbcsql_throughput`; // eslint-disable-line
+    var root = `${__dirname}/..`; // eslint-disable-line
     //root = path.dirname(require.resolve('jdbcsql_throughput/package.json'));
     console.log('here driver dir: ' + root + '/drivers/hsqldb.jar');
     jinst.setupClasspath([
@@ -28,40 +28,17 @@ var config_path = path.dirname(require.resolve('jdbcsql_throughput/package.json'
 console.log('path to jdbc ' + config_path);
 var config = require(config_path + '/gen/configs/config_derby.js').config;
 const jdbcsql_throughput_1 = require("jdbcsql_throughput");
-//import { Constants } from 'jdbcsql_throughput';
-//import { IParallelExecutor } from '../../jdbcsql_throughput/gen/constants';
-//import { ParallelExec } from '../../jdbcsql_throughput/gen/parallel_exec';
-//import { SQLExec } from '../../jdbcsql_throughput/gen/sqlexec';
-// strongly recommended to load this first, as it brings up the jvm,
-// setting classpath variables!
-//const config = require(root + '/configs/config_derby.js').config;
-//var ParallelExec = require('jdbcsql_throughput').ParallelExec;
-//const ParallelPool = require('jdbcsql_throughput').ParallelPool;
-//const SQLExec = require(root + '/qlexec_remote.js');
 console.log('config' + JSON.stringify(config));
 var Pool = require('jdbc');
-//const CSQLExec = require('jdbcsql_throughput').SQLExec;
-//var CParallelExec = require('jdbcsql_throughput').SQLExec;
-//var CParallelPool = jdbcsql_throughput.ParallelPool.ParallelPool;
-//const CSQLExec = require('jdbcsql_throughput').SQLExec.SQLExec;
 console.log('config' + JSON.stringify(config));
 console.log('config' + JSON.stringify(config));
 var testpool = undefined;
 var executor = undefined;
 var parpool = undefined; //= new  ParallelPool(4, testpool, config, undefined );
 var parallel_exec = undefined;
-/*
-var testpool = new Pool(config, function(err, ok) {
-  console.log('here we try pool' + err);
-  console.log('here we try pool' + ok);
-});
-*/
 function Setup(nrexec, explicitconfig) {
     var cfg = explicitconfig || config;
-    testpool = new Pool(cfg, function (err, ok) {
-        console.log('here we try pool' + err);
-        console.log('here we try pool' + ok);
-    });
+    testpool = new Pool(cfg);
     executor = new jdbcsql_throughput_1.SQLExec.SQLExec({});
     parpool = new jdbcsql_throughput_1.ParallelPool.ParallelPool(nrexec, testpool, config, undefined);
     parallel_exec = new jdbcsql_throughput_1.ParallelExecutor.ParallelExec(parpool.getExecutors());
@@ -117,10 +94,11 @@ class Connector {
         this.quitHook = undefined;
         this.intervals = new Map();
         this.qps_avg = 10000; // time to calculate QPS averages
-        if (!parallel_exec) {
+        assert(parallel_exec, "Must invoke Setup before!");
+        /*  if(!parallel_exec) {
             console.log('running default setup, you may want to invoke Setup');
             Setup(4);
-        }
+          }*/
         this.qps_avg = (options && options.qps_avg) || 10000;
         //this.replyCnt = 0;
         this.answerHooks = {};

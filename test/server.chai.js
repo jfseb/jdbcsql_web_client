@@ -155,10 +155,11 @@ tap.test('testSocketIO', function (test) {
     sender.on('error', (a,b) => {
       console.log('here error' + a + ' ' + b);
     })
-    sender.send('sqlclient', 'abc');
-    sender.emit('message', 'abc');
+    // sender.send('sqlclient', 'abc');
+    //  sender.emit('message', 'abc');
       console.log('emitted again');
     })
+    sender.emit('sqlclient', msgChange);
     sender.on('event', msg => {
       console.log('event ' + JSON.stringify(msg));
     });

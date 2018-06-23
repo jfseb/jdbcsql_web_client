@@ -49,7 +49,7 @@ run via
 ```
 node main.js --help
 ```
-# []
+# example screenshot
 ![alt example screenshot](jdbcsql_web_client.png)
 
 
