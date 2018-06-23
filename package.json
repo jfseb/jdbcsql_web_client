@@ -14,7 +14,8 @@
     "pretest": "bash bin/startdbs",
     "posttest": "bash bin/stopdbs",
     "setup": "gulp default",
-    "test": "gulp test",
+    "testg": "gulp test",
+    "test": "tap test/ --cov",
     "run": "node server --simul",
     "start": "node server",
     "coverage": "./node_modules/.bin/tap test/ --cov"
