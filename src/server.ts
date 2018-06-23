@@ -193,8 +193,7 @@ export class WCServer {
           connector.getParallelExecutor().startSequentialSimple('CREATE TABLE IF NOT EXISTS SYSTABMON( NAME varchar(200), "VALUE" int, NR int);').catch(err => console.log(err));
           //connector.getParallelExecutor().startSequentialSimple('INSERT INTO SYSTABNOW VALUES( CREATE TABLE SYSTABMON( NAME : string, VALUE: int, NR : int) IF NOT EXIST;').catch(err => console.log(err));
           connector.getParallelExecutor().startSequentialSimple('DELETE FROM SYSTABMON;').catch(err => console.log(err));
-          var values = [];
-          var u2 = [
+          var values = [
             /*
             MAX_MEM_USAGE_30s : number = 0;
             MEM_USAGE : number = 0;
