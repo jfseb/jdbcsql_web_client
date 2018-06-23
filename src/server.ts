@@ -132,11 +132,6 @@ export class WCServer {
 
     app.use(express.static(__dirname + '/public'));
 
-
-    app.get('/', function (req, res) {
-      res.sendfile('../public/index.html');
-    });
-
     //server.listen(process.env.PORT || 42042);
 
     var Monitor = require('./monitor.js');
@@ -239,20 +234,6 @@ export class WCServer {
           user = 'ano:' + uuid.v4();
         }
         debuglog('Client connected for user ' + user + ' ' + Object.keys(io.clients).join(' '));
-          // console.log('Got answer : ' + sAnswer + '\n');
-    // not now  htmlconnector.startConversation({ id : id } , function() {});
-        socket.on('login', function(userdata) {
-          console.log('LOGIN!!!!!' + id) + ' ' + userdata;
-          debuglog('Got a login event with ' + JSON.stringify(userdata));
-          socket.handshake.session.userdata = userdata;
-        });
-        socket.on('logout', function(userdata) {
-          console.log('LOGOUT!!!!!' + id) + ' ' + userdata;
-          debuglog('Got a logout event with ' + JSON.stringify(userdata));
-          if (socket.handshake.session.userdata) {
-            delete socket.handshake.session.userdata;
-          }
-        });
         socket.on('error', (err) => {
           console.log(err);
         });
