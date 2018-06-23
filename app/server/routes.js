@@ -13,37 +13,7 @@ module.exports = function(app) {
 
 // main login page
   app.get('/', function(req, res){
-		// check if the user's credentials are saved in a cookie //
-    if (req.cookies.user == undefined || req.cookies.pass == undefined){
-      res.redirect('/home');
-    }	else{
-			// attempt automatic login //
-      AM.autoLogin(req.cookies.user, req.cookies.pass, function(o){
-        if (o != null){
-				    req.session.user = o;
-          req.session.altData = { 'ticket' : '1234' };
-          res.redirect('/home');
-        }	else{
-          res.render('login', { title: 'Hello - Please Login To Your Account' });
-        }
-      });
-    }
-  });
-
-
-  app.post('/', function(req, res){
-    AM.manualLogin(req.body['Username'], req.body['Password'], function(e, o){
-      if (!o){
-        res.status(400).send(e);
-      }	else{
-        req.session.user = o;
-        if (req.body['remember-me'] == 'true'){
-          res.cookie('user', o.user, {  expires : new Date(Date.now()+cookieTime*1000) });
-          res.cookie('pass', o.pass, {  expires : new Date(Date.now()+cookieTime*1000) });
-        }
-        res.status(200).send(o);
-      }
-    });
+    res.redirect('/home');
   });
 
   app.get('/home', function(req, res) {
@@ -54,7 +24,7 @@ module.exports = function(app) {
       debuglog('at home ' + JSON.stringify(req.session));
       res.render('home', {
         user : (req.session.user && req.session.user.user) || undefined,
-        title : 'abot',
+        title : 'jdbcsql_client',
         conversationid : uuid.v4(),
         udata : req.session.user,
         altData : req.session.altData

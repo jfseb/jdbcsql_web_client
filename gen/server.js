@@ -31,7 +31,7 @@ class WCServer {
         // conf = require('./config.json');
         app.locals.pretty = true;
         app.set('port', (cfgdata && cfgdata.port) || 42042);
-        app.set('views', /*__dirname*/ +'../app/server/views');
+        app.set('views', __dirname + '/../app/server/views');
         app.set('view engine', 'jade');
         app.use(cookieParser());
         app.use(compression());
@@ -45,7 +45,7 @@ class WCServer {
                 next(); /* Continue to other routes if we're not redirecting */
         });
         var oneDay = 86400000; // in milliseconds
-        app.use(express.static(__dirname + '/app/public', {
+        app.use(express.static(__dirname + '/../app/public', {
             maxAge: oneDay
         }));
         if (process.env.NODE_ENV === 'development') {
