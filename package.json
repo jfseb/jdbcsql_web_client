@@ -12,7 +12,7 @@
   },
   "scripts": {
     "pretest": "bash bin/startdbs",
-    "posttest": "bash bin/stopdbs",f
+    "posttest": "bash bin/stopdbs",
     "setup": "gulp default",
     "test": "gulp test",
     "run": "node server --simul",
