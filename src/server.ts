@@ -163,10 +163,7 @@ export class WCServer {
           var Pool = require('jdbc');
 
           config = cfgdata.config;
-          var testpool = new Pool(config, function(err, ok) {
-            console.log('here we try pool' + err);
-            console.log('here we try pool' + ok);
-          });
+          var testpool = new Pool(config);
           testpool.initialize(function() {});
         }
         var Pool = require('jdbc');
@@ -222,9 +219,6 @@ export class WCServer {
       io.sockets.on('connection', function (socket) {
         var id = uuid.v4().toString(); // '' + Date.now();
         socket.id = id; //uuid.v4();// id;
-      //console.log('here session on connect ' + socket.handshake.session);
-      //console.log(socket.handshake.session);
-      //console.log(JSON.stringify(socket.handshake.session));
 
         var user = socket.handshake.session &&
         socket.handshake.session.user &&
@@ -250,7 +244,6 @@ export class WCServer {
           });
         }, id);
 
-        //socket.emit('register', { id : id });
         socket.on('disconnect', () => {
           console.log('DISCONNECT!!!!!' + id);
           that.connector.disconnect(id);
@@ -279,7 +272,7 @@ export class WCServer {
             body : data.body });
         });
       });
-    })(); //, 500);
+    })();
   }
 }
 

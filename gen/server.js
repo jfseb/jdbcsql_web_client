@@ -117,10 +117,7 @@ class WCServer {
                     }
                     var Pool = require('jdbc');
                     config = cfgdata.config;
-                    var testpool = new Pool(config, function (err, ok) {
-                        console.log('here we try pool' + err);
-                        console.log('here we try pool' + ok);
-                    });
+                    var testpool = new Pool(config);
                     testpool.initialize(function () { });
                 }
                 var Pool = require('jdbc');

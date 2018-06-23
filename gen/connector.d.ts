@@ -26,5 +26,5 @@ export declare class Connector {
     disconnect(conversationID: string): void;
     startParallel(conversationID: string, user: string, statement: string, settings: any): NodeJS.Timer;
     processMessage(msg: IMessage): void;
-    send(messages: IMessage[], done?: any): void;
+    send(messages: IMessage[]): void;
 }

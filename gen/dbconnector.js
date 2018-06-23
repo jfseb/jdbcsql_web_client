@@ -83,9 +83,6 @@ var DUR = 0;
 var PAR = 0;
 ;
 ;
-/* nonglobal process:true*/
-//var BotBuilder = require('botbuilder');
-//var Message = BotBuilder.Message;
 class Connector {
     constructor(options) {
         this.answerHook = {};
@@ -100,11 +97,8 @@ class Connector {
             Setup(4);
           }*/
         this.qps_avg = (options && options.qps_avg) || 10000;
-        //this.replyCnt = 0;
         this.answerHooks = {};
         this.monitor = new monitor_1.Monitor(parallel_exec);
-        //this.user = options && options.user || 'user1';
-        //this.bot = options && options.bot || 'fdevstart';
         this.conversationID = options && options.conversationID || ('' + Date.now());
     }
     ;
@@ -375,19 +369,6 @@ class Connector {
                     that.intervals.set(msg.conversationID, r);
                 }
                 that.adjustMonitor();
-                /*setInterval( () => {
-                  var rec = genRec();
-                  rec.NP = msg.body.settings.parallel;
-                  rec.PAR = rec.NP /2;
-                  var response2 : IMessage =
-                  {
-                    conversationID : msg.conversationID ,
-                    user : msg.user,
-                    sourcedest : "CHART",
-                    body : rec
-                  };
-                  that.send([response2]);
-                }, 4000 / msg.body.settings.parallel); */
             }
             else if (msg.body.op == "STOP") {
                 console.log('stop interval under ' + msg.conversationID);
@@ -405,7 +386,7 @@ class Connector {
             }
         }
     }
-    send(messages, done) {
+    send(messages) {
         for (var i = 0; i < messages.length; i++) {
             var msg = messages[i];
             if (msg.body) {
@@ -418,18 +399,6 @@ class Connector {
                 }
                 //log(msg.text);
             }
-            /*
-            if (msg.attachments && msg.attachments.length > 0) {
-              for (var k = 0; i < msg.attachments.length; i++) {
-                if (k > 0) {
-                  //console.log();
-                }
-                //renderAttachment(msg.attachments[k]);
-              }
-            }*/
-        }
-        if (done) {
-            done(null);
         }
     }
     ;

@@ -137,7 +137,7 @@ class Connector {
             }
         }
     }
-    send(messages, done) {
+    send(messages) {
         for (var i = 0; i < messages.length; i++) {
             var msg = messages[i];
             if (msg.body) {
@@ -150,18 +150,6 @@ class Connector {
                 }
                 //log(msg.text);
             }
-            /*
-            if (msg.attachments && msg.attachments.length > 0) {
-              for (var k = 0; i < msg.attachments.length; i++) {
-                if (k > 0) {
-                  //console.log();
-                }
-                //renderAttachment(msg.attachments[k]);
-              }
-            }*/
-        }
-        if (done) {
-            done(null);
         }
     }
     ;

@@ -186,7 +186,6 @@ export class Connector {
           console.log('where is the answerhook for ' + msg.conversationID);
           this.answerHook(this.conversationID, msg);
         }
-        //log(msg.text);
       }
     }
   };

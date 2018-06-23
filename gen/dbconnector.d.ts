@@ -69,5 +69,5 @@ export declare class Connector {
     stopMonitor(): void;
     adjustMonitor(): void;
     processMessage(msg: IMessage): void;
-    send(messages: IMessage[], done?: any): void;
+    send(messages: IMessage[]): void;
 }
