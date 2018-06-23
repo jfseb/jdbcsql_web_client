@@ -39,30 +39,16 @@ class WCServer {
         app.use(bodyParser.urlencoded({ extended: true }));
         //app.use(require('stylus').middleware({ src: __dirname + '/app/public' }));
         app.get('*', function (req, res, next) {
-            if ((req.headers['x-forwarded-proto'] != 'https') && process.env.PORT)
-                res.redirect(process.env.ABOT_SERVER + req.url);
-            else
-                next(); /* Continue to other routes if we're not redirecting */
+            /* redirect required for heroku to redirect http to https
+            if((req.headers['x-forwarded-proto'] !='https') && process.env.PORT)
+              res.redirect(process.env.XXX_SERVER + req.url);
+            else */
+            next(); /* Continue to other routes if we're not redirecting */
         });
         var oneDay = 86400000; // in milliseconds
         app.use(express.static(__dirname + '/../app/public', {
             maxAge: oneDay
         }));
-        if (process.env.NODE_ENV === 'development') {
-            // only use in development
-            //app.use(errorHandler());
-        }
-        // build mongo database connection url //
-        //var dbHost = process.env.DB_HOST || 'localhost';
-        //var dbPort = process.env.DB_PORT || 27017;
-        //var dbName = process.env.DB_NAME || 'node-login';
-        //var dbURL = 'mongodb://'+dbHost+':'+dbPort+'/'+dbName;
-        //if (app.get('env') == 'live'){
-        // prepend url with authentication credentials //
-        //	dbURL = 'mongodb://'+process.env.DB_USER+':'+process.env.DB_PASS+'@'+dbHost+':'+dbPort+'/'+dbName;
-        //}
-        // https://github.com/expressjs/session
-        //var pglocalurl = process.env.DATABASE_URL || 'postgres://joe:abcdef@localhost:5432/startupdefaults';
         var l_session = session({
             secret: 'faeb4453e5d14fe6f6d04637f78077c76c73d1b4',
             proxy: true,
@@ -71,7 +57,6 @@ class WCServer {
         });
         // remember to create sessions table in DB!
         //https://www.npmjs.com/package/connect-pg-simple
-        //var sharedsession = require('express-socket.io-session');
         app.use(l_session);
         require('../app/server/routes')(app);
         this.server = http.createServer(app);
@@ -171,9 +156,6 @@ class WCServer {
             io.sockets.on('connection', function (socket) {
                 var id = uuid.v4().toString(); // '' + Date.now();
                 socket.id = id; //uuid.v4();// id;
-                //console.log('here session on connect ' + socket.handshake.session);
-                //console.log(socket.handshake.session);
-                //console.log(JSON.stringify(socket.handshake.session));
                 var user = socket.handshake.session &&
                     socket.handshake.session.user &&
                     socket.handshake.session.user &&
@@ -197,7 +179,6 @@ class WCServer {
                         id: id
                     });
                 }, id);
-                //socket.emit('register', { id : id });
                 socket.on('disconnect', () => {
                     console.log('DISCONNECT!!!!!' + id);
                     that.connector.disconnect(id);
@@ -226,7 +207,7 @@ class WCServer {
                         body: data.body });
                 });
             });
-        })(); //, 500);
+        })();
     }
     GetApp() {
         return this.app;

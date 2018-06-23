@@ -7,7 +7,7 @@
 /* eslint-disable */
 //var process = require('process');
 var root =  '../../gen';
-
+var debuglog = require('debug')('server.chai');
 
 var tap = require('tap');
 var chai = require('chai');
@@ -107,7 +107,10 @@ tap.test('testSocketIO', function (test) {
     //var sender = io('http://localhost:3000/socket.io' , ioOptions);
     //var receiver = io('http://localhost:3000/', ioOptions);
     //srv.start()
-
+    var msgExec = { name: "hithere", body :
+    { sourcedest : 'EXEC' ,
+    statement : query
+    }};
     var msgStart = { name: "hithere", body :
       { sourcedest : 'PAR' ,
       statement : query,
@@ -152,6 +155,7 @@ tap.test('testSocketIO', function (test) {
         sender.emit('sqlclient', msg);
         console.log('emit again')
       },5000); */
+
     sender.on('error', (a,b) => {
       console.log('here error' + a + ' ' + b);
     })
@@ -160,21 +164,21 @@ tap.test('testSocketIO', function (test) {
       console.log('emitted again');
     })
     sender.emit('sqlclient', msgChange);
+    sender.emit('sqlclient', msgExec);
     sender.on('event', msg => {
       console.log('event ' + JSON.stringify(msg));
     });
     sender.on('sqlclient', function(msg) {
-      console.log('here msg result' + JSON.stringify(msg));
       var id = msg && msg.id;
-      console.log(' ' + cnt + 'here conv id ' + id);
+      debuglog(' ' + cnt + 'here conv id ' + id);
       ++cnt;
       if(cnt == 5) {
-        console.log('FIRE CHANGE!!!!');
+        debuglog('FIRE CHANGE!!!!');
         test.equal(msg.sourcedest, 'CHART');
         sender.emit('sqlclient',msgChange);
       }
       if(cnt == 8) {
-        console.log('FIRE STOP!!!')
+        debuglog('FIRE STOP!!!')
         test.equal(msg.sourcedest, 'CHART');
         sender.emit('sqlclient',msgStop);
         setTimeout( () => {
@@ -202,22 +206,7 @@ tap.test('testSocketIO', function (test) {
     );
     console.log('emitted');
     var cnt = 0;
-    /*
-    sender.on('sqlclient', function(msg) {
-      var id = msg.id;
-      console.log('here result' + JSON.stringify(msg));
-
-
-      test.true(msg.sourcedest == 'CHART');
-
-      ++cnt;
-      if(cnt > 10) {
-        sender.disconnect();
-        test.done();
-      }
-    });
-    */
-}, 1000);
+  }, 1000);
 });
 
 

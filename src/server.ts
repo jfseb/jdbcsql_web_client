@@ -63,9 +63,10 @@ export class WCServer {
     //app.use(require('stylus').middleware({ src: __dirname + '/app/public' }));
 
     app.get('*',function(req,res,next){
+      /* redirect required for heroku to redirect http to https
       if((req.headers['x-forwarded-proto'] !='https') && process.env.PORT)
-        res.redirect(process.env.ABOT_SERVER +req.url);
-      else
+        res.redirect(process.env.XXX_SERVER + req.url);
+      else */
         next(); /* Continue to other routes if we're not redirecting */
     });
 
@@ -74,35 +75,15 @@ export class WCServer {
       maxAge: oneDay
     }));
 
-    if (process.env.NODE_ENV === 'development') {
-      // only use in development
-      //app.use(errorHandler());
-    }
-
-    // build mongo database connection url //
-    //var dbHost = process.env.DB_HOST || 'localhost';
-    //var dbPort = process.env.DB_PORT || 27017;
-    //var dbName = process.env.DB_NAME || 'node-login';
-
-
-    //var dbURL = 'mongodb://'+dbHost+':'+dbPort+'/'+dbName;
-    //if (app.get('env') == 'live'){
-    // prepend url with authentication credentials //
-    //	dbURL = 'mongodb://'+process.env.DB_USER+':'+process.env.DB_PASS+'@'+dbHost+':'+dbPort+'/'+dbName;
-    //}
-    // https://github.com/expressjs/session
-    //var pglocalurl = process.env.DATABASE_URL || 'postgres://joe:abcdef@localhost:5432/startupdefaults';
-
     var l_session = session({
       secret: 'faeb4453e5d14fe6f6d04637f78077c76c73d1b4',
       proxy: true,
       resave: true,
       saveUninitialized: true
     });
-      // remember to create sessions table in DB!
-      //https://www.npmjs.com/package/connect-pg-simple
 
-    //var sharedsession = require('express-socket.io-session');
+    // remember to create sessions table in DB!
+      //https://www.npmjs.com/package/connect-pg-simple
 
     app.use(l_session);
 
