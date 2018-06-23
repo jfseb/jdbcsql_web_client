@@ -156,9 +156,6 @@ export interface IMessage {
   body: any
 };
 
-/* nonglobal process:true*/
-//var BotBuilder = require('botbuilder');
-//var Message = BotBuilder.Message;
 export class Connector {
   answerHook: any = {};
   answerHooks: any = {};
@@ -176,11 +173,8 @@ export class Connector {
       Setup(4);
     }*/
     this.qps_avg = (options && options.qps_avg) || 10000;
-    //this.replyCnt = 0;
     this.answerHooks = {};
     this.monitor = new Monitor(parallel_exec);
-    //this.user = options && options.user || 'user1';
-    //this.bot = options && options.bot || 'fdevstart';
     this.conversationID = options && options.conversationID || ('' + Date.now());
   };
   setAnswerHook(answerHook, id): void {
@@ -482,19 +476,6 @@ export class Connector {
         }
 
         that.adjustMonitor();
-        /*setInterval( () => {
-          var rec = genRec();
-          rec.NP = msg.body.settings.parallel;
-          rec.PAR = rec.NP /2;
-          var response2 : IMessage =
-          {
-            conversationID : msg.conversationID ,
-            user : msg.user,
-            sourcedest : "CHART",
-            body : rec
-          };
-          that.send([response2]);
-        }, 4000 / msg.body.settings.parallel); */
       }
       else if (msg.body.op == "STOP") {
         console.log('stop interval under ' + msg.conversationID);
@@ -514,8 +495,7 @@ export class Connector {
     }
   }
 
-
-  send(messages: IMessage[], done?: any) {
+  send(messages: IMessage[]) {
     for (var i = 0; i < messages.length; i++) {
       var msg = messages[i];
       if (msg.body) {
@@ -527,18 +507,6 @@ export class Connector {
         }
         //log(msg.text);
       }
-      /*
-      if (msg.attachments && msg.attachments.length > 0) {
-        for (var k = 0; i < msg.attachments.length; i++) {
-          if (k > 0) {
-            //console.log();
-          }
-          //renderAttachment(msg.attachments[k]);
-        }
-      }*/
-    }
-    if (done) {
-      done(null);
     }
   };
 }
