@@ -16,6 +16,7 @@
  import * as http from 'http';
  //import { Server } from 'http';
  import { Server } from 'net';
+ import { Connector } from '../gen/dbconnector';
 
  import * as express from 'express';
  //var express = require('express');
@@ -32,12 +33,16 @@ export class WCServer {
 
   app : express.Application = undefined;
   server : Server;
+  connector : Connector;
 
   GetApp() : express.Application {
     return this.app;
   }
   GetServer() : any {
     return this.server;
+  }
+  GetConnector() : any {
+    return this.connector;
   }
 
   constructor(cfgdata, args) {
@@ -144,10 +149,9 @@ export class WCServer {
     (function() {
       var config = undefined;
       var htmlconnector;
-      var connector;
       if(args.simul) {
         htmlconnector = require('./connector.js');
-        connector = new htmlconnector.Connector();
+        that.connector = new htmlconnector.Connector();
       } else {
         if(cfgdata) {
           var path = require('path');
@@ -175,14 +179,14 @@ export class WCServer {
         htmlconnector = require('./dbconnector.js');
         console.log('config setup is ' + JSON.stringify(config));
         htmlconnector.Setup(args.parallel,config);
-        connector = new htmlconnector.Connector( { qps_avg : args.qps_avg });
+        that.connector = new htmlconnector.Connector( { qps_avg : args.qps_avg });
         if(args.data > 0) {
-          connector.getParallelExecutor().startSequentialSimple('CREATE TABLE IF NOT EXISTS T2 (id  bigint, NAME varchar(200), "VALUE" int, NR int);').catch(err => console.log(err));
+          that.connector.getParallelExecutor().startSequentialSimple('CREATE TABLE IF NOT EXISTS T2 (id  bigint, NAME varchar(200), "VALUE" int, NR int);').catch(err => console.log(err));
           //connector.getParallelExecutor().startSequentialSimple('INSERT INTO SYSTABNOW VALUES( CREATE TABLE SYSTABMON( NAME : string, VALUE: int, NR : int) IF NOT EXIST;').catch(err => console.log(err));
           //connector.getParallelExecutor().startSequentialSimple('DELETE FROM T2;').catch(err => console.log(err));
           for(var k = 0; k < args.data; ++k)
           { var i = (k + Date.now()) % 100000000;
-            connector.getParallelExecutor().startSequentialSimple(`INSERT INTO T2( id, NAME, NR, "VALUE") values (${i}, '${'NAME' + i}',${i % 1000}, ${2 * i});`).catch(err => console.log(err));
+            that.connector.getParallelExecutor().startSequentialSimple(`INSERT INTO T2( id, NAME, NR, "VALUE") values (${i}, '${'NAME' + i}',${i % 1000}, ${2 * i});`).catch(err => console.log(err));
           }
         }
 
@@ -190,9 +194,9 @@ export class WCServer {
           //
         } else {
           Monitor.MONITOR_SYSTABLE_NAME = 'SYSTABMON';
-          connector.getParallelExecutor().startSequentialSimple('CREATE TABLE IF NOT EXISTS SYSTABMON( NAME varchar(200), "VALUE" int, NR int);').catch(err => console.log(err));
+          that.connector.getParallelExecutor().startSequentialSimple('CREATE TABLE IF NOT EXISTS SYSTABMON( NAME varchar(200), "VALUE" int, NR int);').catch(err => console.log(err));
           //connector.getParallelExecutor().startSequentialSimple('INSERT INTO SYSTABNOW VALUES( CREATE TABLE SYSTABMON( NAME : string, VALUE: int, NR : int) IF NOT EXIST;').catch(err => console.log(err));
-          connector.getParallelExecutor().startSequentialSimple('DELETE FROM SYSTABMON;').catch(err => console.log(err));
+          that.connector.getParallelExecutor().startSequentialSimple('DELETE FROM SYSTABMON;').catch(err => console.log(err));
           var values = [
             /*
             MAX_MEM_USAGE_30s : number = 0;
@@ -215,7 +219,7 @@ export class WCServer {
             { NAME : 'PLAN_EXEC_DURATION' , NR : 3000, VALUE : 333},
           ];
           values.forEach( rec => {
-            connector.getParallelExecutor().startSequentialSimple(`INSERT INTO SYSTABMON( NAME, NR, "VALUE") values ('${rec.NAME}',${rec.NR}, ${rec.VALUE});`).catch(err => console.log(err));
+            that.connector.getParallelExecutor().startSequentialSimple(`INSERT INTO SYSTABMON( NAME, NR, "VALUE") values ('${rec.NAME}',${rec.NR}, ${rec.VALUE});`).catch(err => console.log(err));
           });
         }
       }
@@ -256,7 +260,7 @@ export class WCServer {
           console.log(err);
         });
         debuglog('associate answerhook '+ id);
-        connector.setAnswerHook(function (sId, msg) {
+        that.connector.setAnswerHook(function (sId, msg) {
           debuglog('sending answer for ' + id + ' to ' + sId + ' > ' + JSON.stringify(msg));
           socket.emit('sqlclient',{ time : new Date(),
             sourcedest : msg.sourcedest,
@@ -268,7 +272,7 @@ export class WCServer {
         //socket.emit('register', { id : id });
         socket.on('disconnect', () => {
           console.log('DISCONNECT!!!!!' + id);
-          connector.disconnect(id);
+          that.connector.disconnect(id);
           debuglog('Client disconnected' + id);  });
         socket.emit('sqlclient', { time : new Date(), sourcedest : 'DIALOG', body: 'Indicate your query or wish:' });
         debuglog('got a message from ' + user + ' ' + id  );
@@ -277,7 +281,7 @@ export class WCServer {
           debuglog('request has conversationID? '  + (data && data.conversation) );
           var conversationID = data.conversationID || id;
           debuglog('re associate answerhook ' + conversationID);
-          connector.setAnswerHook(function (sId, sBody) {
+          that.connector.setAnswerHook(function (sId, sBody) {
             console.log('sending answer for ' + sId + ' to ' + conversationID + ' > ' +  JSON.stringify(sBody));
             socket.emit('sqlclient',
               { time : new Date(),
@@ -289,7 +293,7 @@ export class WCServer {
               });
           }, conversationID);
           console.log('user' + user + ' conv: ' + conversationID + ' asks '  + JSON.stringify(data.body));
-          connector.processMessage({ conversationID : conversationID,
+          that.connector.processMessage({ conversationID : conversationID,
             user : user,
             body : data.body });
         });

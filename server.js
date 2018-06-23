@@ -45,13 +45,6 @@ parser.addArgument(
   }
 );
 parser.addArgument(
-  ['--vora' ],
-  {
-    help: 'use vora driver and config',
-    nargs : 0,
-  }
-);
-parser.addArgument(
   ['-f','--fakemonitor' ],
   {
     help: 'create fake fake monitor table on db',
@@ -245,44 +238,6 @@ setTimeout(function() {
       var Pool = require('jdbc');
 
       config = cfgdata.config;
-      var testpool = new Pool(config, function(err, ok) {
-        console.log('here we try pool' + err);
-        console.log('here we try pool' + ok);
-      });
-      testpool.initialize(function() {});
-    }
-
-
-    if (args.vora) {
-      var path = require('path');
-      var config_path = path.dirname(require.resolve('jdbcsql_throughput/package.json'));
-      console.log('path to jdbc ' + config_path);
-      var jinst = require('jdbc/lib/jinst');
-
-      if (!jinst.isJvmCreated()) {
-        console.log('adding vora driver');
-        jinst.addOption('-Xrs');
-        jinst.setupClasspath([  //root + './drivers/hsqldb.jar',
-          '/home/D026276/localgit/sjdbcsql_throughput/drivers/acmereports.jar']);
-      }
-
-      var Pool = require('jdbc');
-
-      config = require(config_path + '/gen/configs/config_vora.js').config;
-      config = {
-        //    url: 'jdbc:hsqldb:hsql://localhost/xdb',
-        //    user: 'SA',
-        libpath : './drivers/hl-jdbc-2.3.90.jar',
-        drivername : 'com.sap.vora.jdbc.VoraDriver',
-        url : 'jdbc:hanalite://' + '127.0.0.1:2202',
-            //url : 'jdbc:hanalite://' + '127.0.0.1:2202' + '/?resultFormat=binary',
-        user : '',
-        logging : 'info',
-        password: '',
-        minpoolsize: 2,
-        maxpoolsize: 500
-        //    properties : {user: '', password : ''}
-      };
       var testpool = new Pool(config, function(err, ok) {
         console.log('here we try pool' + err);
         console.log('here we try pool' + ok);
