@@ -1,13 +1,17 @@
 {
-  "classpath" : ["/home/D026276/localgit/sjdbcsql_throughput/drivers/acmereports.jar"],
+  "port": 42042,
+  "classpath": [
+    "./drivers/hsqldb.jar",
+    "./drivers/derby.jar",
+    "./drivers/derbyclient.jar",
+    "./drivers/derbytools.jar"
+  ],
   "config": {
-          "libpath" : "./drivers/hl-jdbc-2.3.90.jar",
-          "drivername" : "com.sap.vora.jdbc.VoraDriver",
-          "url" : "jdbc:hanalite://127.0.0.1:2202",
-          "user" : "",
-          "logging" : "info",
-          "password": "",
-          "minpoolsize": 2,
-          "maxpoolsize": 500
-        }
+    "url": "jdbc:hsqldb:hsql://localhost/xdb",
+    "user": "SA",
+    "logging": "info",
+    "password": "",
+    "minpoolsize": 2,
+    "maxpoolsize": 50
+  }
 }

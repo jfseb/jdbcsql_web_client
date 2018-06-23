@@ -36,6 +36,39 @@ tap.test('testHome', function (test) {
   });
 });
 
+
+tap.test('testRoot', function (test) {
+  test.plan(3);
+  chai.request(server.app)
+  .get('/')
+  .end(function(err, res) {
+    console.log('here err' + err);
+    test.equal(err, null);
+    console.log(res.status);
+    test.equal(res.status,200);
+    test.equal(JSON.stringify(res).indexOf("btnPAR") > 0, true, 'btnPAR present');
+    server.server.close();
+    test.done();
+  });
+});
+
+
+tap.test('testGetAbout', function (test) {
+  test.plan(3);
+  chai.request(server.app)
+  .get('/about')
+  .end(function(err, res) {
+    console.log('here err' + err);
+    test.equal(err, null);
+    console.log(res.status);
+    test.equal(res.status,200);
+    test.equal(JSON.stringify(res).indexOf("jfseb") > 0, true, 'jfseb');
+    server.server.close();
+    test.done();
+  });
+});
+
+
 var query = '/query?query=SELECT%20*%20FROM%20T1%3B';
 
 tap.test('testGetQuery', function (test) {

@@ -52,10 +52,10 @@ tap.test('testExecStatement', function (test) {
       reconnection : true
     };
     var sender = io('http://localhost:3000/',
-      	ioOptions
+      ioOptions
     );
-    var query = 'SELECT * FROM TNOTEXIST;';
-    var conversationID = 'conv1';
+    //var query = 'SELECT * FROM TNOTEXIST;';
+    //var conversationID = 'conv1';
     sender.on('reconnect_attempt', () => console.log('reconnedt atteam'));
     sender.on('connect', function(amsg, bmsg) {
       console.log('got connection' + amsg + ' ' + bmsg);
