@@ -42,31 +42,7 @@ class Connector {
         this.answerHook = {};
         this.answerHooks = {};
         this.conversationID = "";
-        this.quitHook = undefined;
-        /*
-          this.processMessage(line);
-          return this;
-        };
-      
-        id is a tuple  { conversationId, user }
-        */
-        this.processMessageX = function (line, id) {
-            if (typeof id === 'string') {
-                id = {
-                    conversationID: id,
-                    user: id,
-                };
-            }
-            console.log('received' + line + ' ' + id);
-            if (this.handler) {
-                this.handler({ id: id, text: line });
-            }
-            return this;
-        };
         this.intervals = {};
-        this.onEvent = function (handler) {
-            this.handler = handler;
-        };
         //this.replyCnt = 0;
         this.answerHooks = {};
         //this.user = options && options.user || 'user1';
@@ -80,10 +56,6 @@ class Connector {
             this.answerHooks[id] = answerHook;
         }
         this.answerHook = answerHook;
-    }
-    ;
-    setQuitHook(quitHook) {
-        this.quitHook = quitHook;
     }
     ;
     disconnect(conversationID) {
@@ -165,9 +137,6 @@ class Connector {
             }
         }
     }
-    // array of messages  wiht msg.addres.conversation id
-    // {msg.text}
-    // {msg.conversationID }
     send(messages, done) {
         for (var i = 0; i < messages.length; i++) {
             var msg = messages[i];

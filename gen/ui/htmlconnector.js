@@ -23,9 +23,6 @@ var HTMLConnector = function () {
     }
     this.answerHook = answerHook;
   };
-  HTMLConnector.prototype.setQuitHook = function (quitHook) {
-    this.quitHook = quitHook;
-  };
   /*
     this.processMessage(line);
     return this;

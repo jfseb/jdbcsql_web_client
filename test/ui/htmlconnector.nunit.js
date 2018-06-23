@@ -39,10 +39,6 @@ tap.test('testWithIdHook', function (test) {
   });
 
 
-  out.setQuitHook(function(o) {
-    throw new Error("never called");
-  });
-
   var hook3 = { a : 0, cnt : 0};
   out.onEvent(function(arg) {
     hook3.a = arg;

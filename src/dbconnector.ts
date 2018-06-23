@@ -4,7 +4,8 @@
  */
 'use strict';
 
-// setup a parallel pool.
+import * as debug from 'debug';
+const debuglog = debug('dbconnector');
 
 import * as assert from 'assert';
 const path = require('path');
@@ -156,31 +157,6 @@ var QPS = 0;
 var DUR = 0;
 var PAR = 0;
 
-function genRndRec( )
-{
-  var time = ( Date.now() / 100) % 10000;
- MAXMEM += 10;
- QPS = (MAXMEM % 100 - 50)* Math.sin(time / 1000);
- MEM = 100 * Math.abs(Math.sin(time/30));
- CPU = 100 * Math.abs(Math.cos(time/29));
- DUR = 100 * Math.abs(Math.cos(time/15));
- FAIL = 25 * Math.abs(Math.cos(time/25));
- time = Date.now();
- var rec = {
-   time : time,
-   QPS : QPS,
-   FAIL : FAIL,
-   MEM: MEM,
-   CPU : CPU,
-   DUR : DUR,
-   NP : 0,
-   PAR : 0,
-  MAXMEM : MAXMEM
- };
- return rec;
-}
-
-
 export interface ISettings {
   parallel: number,
   continuous: boolean // running or not
@@ -242,9 +218,6 @@ export class Connector {
       this.answerHooks[id] = answerHook;
     }
     this.answerHook = answerHook;
-  };
-  setQuitHook(quitHook) {
-    this.quitHook = quitHook;
   };
 
   /**
@@ -458,13 +431,8 @@ export class Connector {
   tmonitor : any;
 
   startMonitor() {
-    //
     this.monitor.startMonitor();
-    console.log('start monitor');
-    /*
-    this.tmonitor = setInterval(function() {
-      genRndRec();
-    }, 100);*/
+    debuglog('start monitor');
   }
   stopMonitor() {
     this.monitor.stopMonitor();
@@ -481,7 +449,7 @@ export class Connector {
     // otherwise stop
     var active = Array.from(this.intervals.keys()).filter(
       (key) => ( that.intervals.get(key).settings.continuous ));
-    console.log(' have ' + active.length + ' conversations');
+      debuglog(' have ' + active.length + ' conversations');
       if(active.length == 0) {
         that.stopMonitor();
       } else {
@@ -575,9 +543,6 @@ export class Connector {
     }
   }
 
-  onEvent = function (handler) {
-    this.handler = handler;
-  };
 
   send(messages: IMessage[], done?: any) {
     for (var i = 0; i < messages.length; i++) {

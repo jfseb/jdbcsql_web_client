@@ -4,7 +4,8 @@
  */
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
-// setup a parallel pool.
+const debug = require("debug");
+const debuglog = debug('dbconnector');
 const assert = require("assert");
 const path = require('path');
 const _ = require("lodash");
@@ -103,28 +104,6 @@ var FAIL = 0;
 var QPS = 0;
 var DUR = 0;
 var PAR = 0;
-function genRndRec() {
-    var time = (Date.now() / 100) % 10000;
-    MAXMEM += 10;
-    QPS = (MAXMEM % 100 - 50) * Math.sin(time / 1000);
-    MEM = 100 * Math.abs(Math.sin(time / 30));
-    CPU = 100 * Math.abs(Math.cos(time / 29));
-    DUR = 100 * Math.abs(Math.cos(time / 15));
-    FAIL = 25 * Math.abs(Math.cos(time / 25));
-    time = Date.now();
-    var rec = {
-        time: time,
-        QPS: QPS,
-        FAIL: FAIL,
-        MEM: MEM,
-        CPU: CPU,
-        DUR: DUR,
-        NP: 0,
-        PAR: 0,
-        MAXMEM: MAXMEM
-    };
-    return rec;
-}
 ;
 ;
 /* nonglobal process:true*/
@@ -138,9 +117,6 @@ class Connector {
         this.quitHook = undefined;
         this.intervals = new Map();
         this.qps_avg = 10000; // time to calculate QPS averages
-        this.onEvent = function (handler) {
-            this.handler = handler;
-        };
         if (!parallel_exec) {
             console.log('running default setup, you may want to invoke Setup');
             Setup(4);
@@ -160,10 +136,6 @@ class Connector {
             this.answerHooks[id] = answerHook;
         }
         this.answerHook = answerHook;
-    }
-    ;
-    setQuitHook(quitHook) {
-        this.quitHook = quitHook;
     }
     ;
     /**
@@ -355,13 +327,8 @@ class Connector {
         return res;
     }
     startMonitor() {
-        //
         this.monitor.startMonitor();
-        console.log('start monitor');
-        /*
-        this.tmonitor = setInterval(function() {
-          genRndRec();
-        }, 100);*/
+        debuglog('start monitor');
     }
     stopMonitor() {
         this.monitor.stopMonitor();
@@ -376,7 +343,7 @@ class Connector {
         // check all handels, if any running -> assure monitor runs,
         // otherwise stop
         var active = Array.from(this.intervals.keys()).filter((key) => (that.intervals.get(key).settings.continuous));
-        console.log(' have ' + active.length + ' conversations');
+        debuglog(' have ' + active.length + ' conversations');
         if (active.length == 0) {
             that.stopMonitor();
         }

@@ -48,7 +48,6 @@ export declare class Connector {
     monitor: Monitor;
     constructor(options: any);
     setAnswerHook(answerHook: any, id: any): void;
-    setQuitHook(quitHook: any): void;
     /**
      * Expose the parallel executor
      */
@@ -70,6 +69,5 @@ export declare class Connector {
     stopMonitor(): void;
     adjustMonitor(): void;
     processMessage(msg: IMessage): void;
-    onEvent: (handler: any) => void;
     send(messages: IMessage[], done?: any): void;
 }

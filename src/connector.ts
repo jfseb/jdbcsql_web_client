@@ -63,7 +63,6 @@ export class Connector {
   answerHook : any = {};
   answerHooks : any = {};
   conversationID : string = "";
-  quitHook : any = undefined;
 
  constructor(options: any) {
     //this.replyCnt = 0;
@@ -79,31 +78,6 @@ export class Connector {
     }
     this.answerHook = answerHook;
   };
-  setQuitHook(quitHook) {
-    this.quitHook = quitHook;
-  };
-
-  /*
-    this.processMessage(line);
-    return this;
-  };
-
-  id is a tuple  { conversationId, user }
-  */
-  processMessageX = function (line : string, id : any) {
-    if (typeof id === 'string') {
-      id = {
-        conversationID: id,
-        user : id,
-      };
-    }
-    console.log('received' + line + ' ' + id);
-    if (this.handler) {
-      this.handler( { id : id, text : line });
-    }
-    return this;
-  };
-
   intervals : any = {};
 
   disconnect(conversationID : string) {
@@ -200,14 +174,6 @@ export class Connector {
       }
     }
   }
-
-  onEvent = function (handler) {
-    this.handler = handler;
-  };
-
-// array of messages  wiht msg.addres.conversation id
-// {msg.text}
-// {msg.conversationID }
 
   send(messages : IMessage[], done? : any) {
     for (var i = 0; i < messages.length; i++) {

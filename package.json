@@ -45,7 +45,6 @@
     "jdbcsql_throughput": "0.0.3",
     "lodash": "^4.17.10",
     "long": "^4.0.0",
-    "newrelic": "^1.36.1",
     "node-java": "^1.0.1",
     "node-uuid": "^1.4.7",
     "socket.io": "^1.7.2",

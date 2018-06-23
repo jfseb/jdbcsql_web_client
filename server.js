@@ -3,13 +3,6 @@
  *
  */
 
-/*global __dirname:true*/
-var process = require('process');
-if(process.env.DO_RELIC) {
-   // only do this is deployed in heroku
-  require('newrelic');
-}
-
 var argsparse = require('argparse');
 var ArgumentParser = require('argparse').ArgumentParser;
 var parser = new ArgumentParser({
