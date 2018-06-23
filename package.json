@@ -11,6 +11,8 @@
     "url": "http://github.com/jfseb/jdbcsql_web_client/issues"
   },
   "scripts": {
+    "pretest": "bash bin/startdbs",
+    "posttest": "bash bin/stopdbs",f
     "setup": "gulp default",
     "test": "gulp test",
     "run": "node server --simul",

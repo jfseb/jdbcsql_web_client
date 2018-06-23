@@ -108,16 +108,6 @@ gulp.task('testcov', [], function () {
     })).pipe(gulp.dest('./cov/lcov.info'));
 });
 
-gulp.task('test', ['tsc', 'babel'], function () {
-  gulp.src(['test/**/*.js'])
-    .pipe(nodeunit({
-      reporter: 'minimal'
-      // reporterOptions: {
-      //  output: 'testcov'
-      // }
-    })).on('error', function (err) { console.log('This is weird: ' + err.message); })
-    .pipe(gulp.dest('./out/lcov.info'));
-});
 
 gulp.task('testmin', ['tsc', 'babel'], function () {
   gulp.src(['test/**/*.js'])
@@ -150,9 +140,15 @@ gulp.task('eslint', () => {
     .pipe(eslint.failAfterError());
 });
 
+var gulp_shell = require('gulp-shell');
+
+gulp.task('test', gulp_shell.task([
+  'tap test\\ --cov',
+]));
+
 
 // Default Task
 gulp.task('default', ['tsc', 'babel', 'eslint', 'doc', 'test']);
-gulp.task('build', ['tsc', 'webpack', 'babel']);
+gulp.task('build', ['tsc', 'babel']);
 gulp.task('allhome', ['default']);
 gulp.task('standard', ['tsc', 'babel', 'eslint', 'test']);
