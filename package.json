@@ -1,6 +1,6 @@
 {
   "name": "jdbcsql_web_client",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Sample web based jdbc client with chart for system monitoring",
   "main": "server.js",
   "repository": {
@@ -42,7 +42,7 @@
     "express-socket.io-session": "^1.3.1",
     "jade": "^1.11.0",
     "jdbc": "^0.6.2",
-    "jdbcsql_throughput": "0.0.3",
+    "jdbcsql_throughput": "0.0.4",
     "lodash": "^4.17.10",
     "long": "^4.0.0",
     "node-java": "^1.0.1",
