@@ -38,6 +38,7 @@ var config = {
 
 var args = {
   parallel : 4,
+  data : 2,
   fakemonitor : true
 };
 /*
@@ -91,6 +92,7 @@ var io = require('socket.io-client');
 tap.test('testSocketIO', function (test) {
   test.plan(3);
   var srv = new Server.WCServer(config, {
+    data : 3,
     fakemonitor : true
   });
 
@@ -105,7 +107,7 @@ tap.test('testSocketIO', function (test) {
     var sender = io('http://localhost:3000/',
     ioOptions
     );
-    var query = 'SELECT * FROM T1;';
+    var query = 'SELECT * FROM T2;';
     //var sender = io('http://localhost:3000/socket.io' , ioOptions);
     //var receiver = io('http://localhost:3000/', ioOptions);
     //srv.start()
