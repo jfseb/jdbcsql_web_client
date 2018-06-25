@@ -3,11 +3,13 @@
 
 Web server and client to execute sql queries via node-jdbc
 
-node-jdbc connects a JVM to node, allows do load an arbitrary JDBC
-SQL Driver etc.
+node-jdbc connects a JVM to node, allowing to load an arbitrary JDBC
+SQL Driver.
 
-Driver and classpath can be configured via a jdbcsql_config.json file
-in the root folder. If none is provided.
+Driver and Classpath can be configured via a jdbcsql_config.json file
+in the root folder. A default example is supplied.
+Sample drivers for derby (including a derby db for testing is supplied
+as part of the repo (but not the npm dist!))
 
 ## Built commandline
 
