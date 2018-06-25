@@ -53,7 +53,7 @@ export function Setup(nrexec :number, explicitconfig? : any) {
   var cfg = explicitconfig || config;
   testpool = new Pool(cfg);
   executor = new SQLExec.SQLExec({});
-  parpool = new  ParallelPool.ParallelPool(nrexec, testpool, config, undefined );
+  parpool = new  ParallelPool.ParallelPool(nrexec, testpool, config );
   parallel_exec = new ParallelExecutor.ParallelExec(parpool.getExecutors());
 }
 

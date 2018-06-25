@@ -40,7 +40,7 @@ function Setup(nrexec, explicitconfig) {
     var cfg = explicitconfig || config;
     testpool = new Pool(cfg);
     executor = new jdbcsql_throughput_1.SQLExec.SQLExec({});
-    parpool = new jdbcsql_throughput_1.ParallelPool.ParallelPool(nrexec, testpool, config, undefined);
+    parpool = new jdbcsql_throughput_1.ParallelPool.ParallelPool(nrexec, testpool, config);
     parallel_exec = new jdbcsql_throughput_1.ParallelExecutor.ParallelExec(parpool.getExecutors());
 }
 exports.Setup = Setup;
