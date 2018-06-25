@@ -36,11 +36,11 @@ var testpool = undefined;
 var executor = undefined;
 var parpool = undefined; //= new  ParallelPool(4, testpool, config, undefined );
 var parallel_exec = undefined;
-function Setup(nrexec, explicitconfig) {
-    var cfg = explicitconfig || config;
-    testpool = new Pool(cfg);
+function Setup(nrexec, cfgdata) {
+    cfgdata = cfgdata || config;
+    testpool = new Pool(cfgdata.config);
     executor = new jdbcsql_throughput_1.SQLExec.SQLExec({});
-    parpool = new jdbcsql_throughput_1.ParallelPool.ParallelPool(nrexec, testpool, config);
+    parpool = new jdbcsql_throughput_1.ParallelPool.ParallelPool(nrexec, testpool, cfgdata);
     parallel_exec = new jdbcsql_throughput_1.ParallelExecutor.ParallelExec(parpool.getExecutors());
 }
 exports.Setup = Setup;

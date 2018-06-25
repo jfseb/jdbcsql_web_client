@@ -88,7 +88,7 @@ var metadata = {
     color: 'green'
   },
   FAIL: {
-    label: 'Fail %',
+    label: 'Mem %/ CPU % / Fail %',
     axis: {
       id: 'perc',
       max: 100,

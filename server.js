@@ -6,9 +6,9 @@
 var argsparse = require('argparse');
 var ArgumentParser = require('argparse').ArgumentParser;
 var parser = new ArgumentParser({
-  version: '0.0.1',
+  version: '0.0.7',
   addHelp:true,
-  description: 'jdbc_sql_client \n node server '
+  description: 'jdbcsql_web_client \n node server '
 });
 parser.addArgument(
   [ '-P', '--parallel' ],
@@ -77,7 +77,7 @@ try {
   console.log('could not read ./jdbcsql_config.json, falling back to default config' + e);
 }
 
-
+console.log('read config ' + JSON.stringify(cfgdata));
 var Server = require('./gen/server.js');
 
 var srv = new Server.WCServer(cfgdata, args);

@@ -131,8 +131,6 @@ export class WCServer {
       } else {
         if(cfgdata) {
           var path = require('path');
-      //    var config_path = path.dirname(require.resolve('jdbcsql_throughput/package.json'));
-      //    console.log('path to jdbc ' + config_path);
           var jinst = require('jdbc/lib/jinst');
 
           if (!jinst.isJvmCreated()) {
@@ -142,7 +140,7 @@ export class WCServer {
           }
 
           var Pool = require('jdbc');
-
+          console.log(' here pool config ' + JSON.stringify(cfgdata));
           config = cfgdata.config;
           var testpool = new Pool(config);
           testpool.initialize(function() {});
@@ -151,7 +149,7 @@ export class WCServer {
 
         htmlconnector = require('./dbconnector.js');
         console.log('config setup is ' + JSON.stringify(config));
-        htmlconnector.Setup(args.parallel,config);
+        htmlconnector.Setup(args.parallel, cfgdata);
         that.connector = new htmlconnector.Connector( { qps_avg : args.qps_avg });
         if(args.data > 0) {
           that.connector.getParallelExecutor().startSequentialSimple('CREATE TABLE IF NOT EXISTS T2 (id  bigint, NAME varchar(200), "VALUE" int, NR int);').catch(err => console.log(err));

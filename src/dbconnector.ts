@@ -49,11 +49,11 @@ var executor : SQLExec.SQLExec = undefined;
 var parpool : ParallelPool.ParallelPool = undefined; //= new  ParallelPool(4, testpool, config, undefined );
 var parallel_exec : Constants.IParallelExecutor = undefined;
 
-export function Setup(nrexec :number, explicitconfig? : any) {
-  var cfg = explicitconfig || config;
-  testpool = new Pool(cfg);
+export function Setup(nrexec :number, cfgdata? : any) {
+  cfgdata = cfgdata || config;
+  testpool = new Pool(cfgdata.config);
   executor = new SQLExec.SQLExec({});
-  parpool = new  ParallelPool.ParallelPool(nrexec, testpool, config );
+  parpool = new  ParallelPool.ParallelPool(nrexec, testpool, cfgdata );
   parallel_exec = new ParallelExecutor.ParallelExec(parpool.getExecutors());
 }
 
