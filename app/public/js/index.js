@@ -337,7 +337,7 @@ textarea.addEventListener('keydown',function(e) {
     textarea.parentNode.parentNode.insertBefore(li,textarea.parentNode);
     setTimeout(function() {
       textarea.value = '';
-      var r = value.substring(0,940).split(';');
+      var r = value.substring(0,18940).split(';');
       r.forEach(s => {
         s = s.trim();
         if(s.length) {
