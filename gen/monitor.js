@@ -4,7 +4,8 @@ const assert = require('assert');
 const debug = require("debug");
 const debuglog = debug('monitor');
 var cnt = 0;
-exports.MONITOR_SYSTABLE_NAME = "SYS.INTERNAL_REL_NODE_RT_AVG;";
+//export var MONITOR_SYSTABLE_NAME = "SYS.INTERNAL_REL_NODE_RT_AVG;";
+exports.MONITOR_SYSTABLE_NAME = "SYS.INTERNAL_REL_NODE_RUNTIME_AVG;";
 ;
 class IAvgRecord {
     constructor() {
@@ -80,7 +81,7 @@ class Monitor {
         exports.Keys.forEach(key => {
             res.forEach(rec => {
                 if (rec.NAME == key) {
-                    debuglog(' found record ' + rec.VALUE + " " + JSON.stringify(rec));
+                    debuglog.enabled && debuglog(' found record ' + rec.VALUE + " " + JSON.stringify(rec));
                     if (!result.has(key)) {
                         result.set(key, new Map());
                     }
@@ -114,9 +115,9 @@ class Monitor {
         return values;
     }
     toRecord(values) {
-        console.log("******* DONE ");
+        debuglog.enabled && debuglog("******* DONE ");
         var avgx = values;
-        console.log('QPM\t|BAD%\t|PAR'
+        debuglog.enabled && debuglog('QPM\t|BAD%\t|PAR'
             + '\t|DUR'
             + '\t|DDP'
             + '\t|MAX_MEM'
@@ -138,7 +139,7 @@ class Monitor {
             NP: avgx.NR_PARALLEL_PLAN
         };
         this.dumpAllResults([result]);
-        console.log(result.time +
+        debuglog.enabled && debuglog(result.time +
             +'\t|' + result.QPS
             + '\t|' + result.FAIL
             + '\t|' + result.DUR, +'\t|' + result.NP
@@ -159,10 +160,10 @@ class Monitor {
             return;
         }
         var s1 = Object.keys(allresult[0]).map(key => dumpNice(key, 10)).join(",");
-        console.log(s1);
+        debuglog.enabled && debuglog(s1);
         allresult.forEach(entry => {
             var sn = Object.keys(entry).map(key => dumpNice(entry[key], 10)).join(',');
-            console.log(sn);
+            debuglog.enabled && debuglog(sn);
         });
     }
 }
