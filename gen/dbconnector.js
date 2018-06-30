@@ -54,7 +54,7 @@ function runStatements(statements, cb) {
     arr.forEach(statement => {
         parallel_exec.startOpSequential("seqstatement", statement, {
             progress: function (op, rc) {
-                console.log('end sequential ' + op.lastRC + ' ' + op.lastResult);
+                debuglog.enabled && debuglog('end sequential ' + op.lastRC + ' ' + op.lastResult);
                 var lr = op.lastResult;
                 if (op.lastRC && _.isArray(op.lastResult)) {
                     lr = (new jdbcsql_throughput_1.SQLExec.SQLExec({})).makeAsciiTable(op.lastResult);
@@ -143,7 +143,7 @@ class Connector {
         }
         res = res.trim();
         res = res + ";";
-        console.log('rectified statement ' + res);
+        debuglog.enabled && debuglog('rectified statement ' + res);
         return res;
     }
     ;
@@ -179,13 +179,13 @@ class Connector {
         if (last3sRecords.length < 10) {
             last3sRecords = currentRec.results.filter((r, index) => (index + 10 > currentRec.results.length));
         }
-        console.log('got ' + last3sRecords.length + ' records within last ' + this.qps_avg + ' sec');
+        debuglog.enabled && debuglog('got ' + last3sRecords.length + ' records within last ' + this.qps_avg + ' sec');
         return last3sRecords;
     }
     getQPS(currentRec) {
         var last_time = currentRec.results.length ? currentRec.results[currentRec.results.length - 1].time : Date.now();
         var last3sRecords = this.getLastRecords(currentRec);
-        console.log('got ' + last3sRecords.length + ' records within last ' + this.qps_avg + ' sec');
+        debuglog.enabled && debuglog('got ' + last3sRecords.length + ' records within last ' + this.qps_avg + ' sec');
         const MIN = 1000 * 60;
         if (last3sRecords.length > 5) {
             var delta_t = (last3sRecords[last3sRecords.length - 1].time - last3sRecords[0].time);
@@ -197,7 +197,7 @@ class Connector {
             otherQPS = lastSinceSwitchRecords.length * MIN /
                 (lastSinceSwitchRecords[lastSinceSwitchRecords.length - 1].time - lastSinceSwitchRecords[0].time);
         }
-        console.log('*** here qps avg' + currentRec.lastQPS + ' here total ' + otherQPS);
+        debuglog.enabled && debuglog('*** here qps avg' + currentRec.lastQPS + ' here total ' + otherQPS);
         currentRec.lastQPS = currentRec.lastQPS;
         return currentRec.lastQPS;
     }
@@ -224,7 +224,7 @@ class Connector {
             clone.time = currentRec.results[currentRec.results.length - 1].time;
         }
         var tx = Date.now() + currentRec.delta_t;
-        console.log('time is' + tx + ' ' + currentRec.delta_t);
+        debuglog.enabled && debuglog('time is' + tx + ' ' + currentRec.delta_t);
         clone.time = tx;
         return clone;
     }
@@ -242,7 +242,7 @@ class Connector {
         }
         convRec.statement = this.getOneStatement(statement);
         if (convRec.settings.parallel != settings.parallel) {
-            console.log('CHANGING PARALLEL ' + settings.parallel);
+            debuglog.enabled && debuglog('CHANGING PARALLEL ' + settings.parallel);
             convRec.settings.parallel = settings.parallel;
             parallel_exec.changeParallelOp(convRec.handle, settings.parallel);
         }
@@ -254,11 +254,11 @@ class Connector {
         var lastOp_t = Date.now();
         var handle = parallel_exec.startOpRepeat(conversationID, statement, settings.parallel, undefined, {
             progress: function (op /*ParallelOp*/, rc) {
-                console.log('progress ');
+                debuglog.enabled && debuglog('progress ');
                 if (!that.isActive(conversationID)) {
                     return;
                 }
-                console.log('sending response' + conversationID);
+                debuglog.enabled && debuglog('sending response' + conversationID);
                 var currentRec = that.getConvRecord(conversationID);
                 var adjustedTime = Date.now() + currentRec.delta_t;
                 currentRec.results.push({ time: adjustedTime, rc: rc });
@@ -282,8 +282,8 @@ class Connector {
             done: function () { }
         });
         var delta = Date.now() - currentRec.last_stop_t;
-        console.log(' !! last stop is ' + ((Date.now() - currentRec.last_stop_t) / 1000) + 'seconds gone');
-        console.log(' !!!!total compensation ' + (Date.now() + currentRec.delta_t - delta) + ' ');
+        debuglog.enabled && debuglog(' !! last stop is ' + ((Date.now() - currentRec.last_stop_t) / 1000) + 'seconds gone');
+        debuglog.enabled && debuglog(' !!!!total compensation ' + (Date.now() + currentRec.delta_t - delta) + ' ');
         var res = {
             statement: statement,
             settings: settings,
@@ -326,15 +326,15 @@ class Connector {
     processMessage(msg) {
         var that = this;
         var t = Date.now();
-        console.log('got message' + JSON.stringify(msg));
+        debuglog.enabled && debuglog('got message' + JSON.stringify(msg));
         if (msg.body.sourcedest == "EXEC") {
-            console.log(' run statement once ' + msg.body.statement);
+            debuglog.enabled && debuglog(' run statement once ' + msg.body.statement);
             var statement = this.getOneStatement(msg.body.statement);
             parallel_exec.startOpSequential("abc", statement, { done: function (op) {
-                    console.log('but we are done' + JSON.stringify(op.lastRC));
+                    debuglog.enabled && debuglog('but we are done' + JSON.stringify(op.lastRC));
                 },
                 progress: function (op, rc) {
-                    console.log('end sequential ' + op.lastRC + ' ' + op.lastResult);
+                    debuglog.enabled && debuglog('end sequential ' + op.lastRC + ' ' + op.lastResult);
                     var lr = op.lastResult;
                     if (op.lastRC && _.isArray(op.lastResult)) {
                         lr = (new jdbcsql_throughput_1.SQLExec.SQLExec({})).makeAsciiTable(op.lastResult);
@@ -345,15 +345,15 @@ class Connector {
                         sourcedest: msg.sourcedest || "DIALOG",
                         body: lr
                     };
-                    console.log(JSON.stringify(response, undefined, 2));
+                    debuglog.enabled && debuglog(JSON.stringify(response, undefined, 2));
                     that.send([response]);
                 } });
             return;
         }
         if (msg && msg.body.sourcedest == "PAR" && msg.body && msg.body.settings) {
             if (msg.body.op == "START") {
-                console.log(' Start parallel statement' + msg.body.statement);
-                console.log('registering interval under ' + msg.conversationID);
+                debuglog.enabled && debuglog(' Start parallel statement' + msg.body.statement);
+                debuglog.enabled && debuglog('registering interval under ' + msg.conversationID);
                 var r = this.startParallel(msg.conversationID, msg.user, msg.body.statement, msg.body.settings);
                 if (that.intervals.has(msg.conversationID)) {
                     var stopped = that.intervals.get(msg.conversationID);
@@ -371,9 +371,9 @@ class Connector {
                 that.adjustMonitor();
             }
             else if (msg.body.op == "STOP") {
-                console.log('stop interval under ' + msg.conversationID);
+                debuglog.enabled && debuglog('stop interval under ' + msg.conversationID);
                 if (that.intervals.has(msg.conversationID)) {
-                    console.log(' found conversation, ');
+                    debuglog.enabled && debuglog(' found conversation, ');
                     this.stopParallel(msg.conversationID);
                     return; //running!
                 }

@@ -215,7 +215,7 @@ export class WCServer {
         });
         debuglog('associate answerhook '+ id);
         that.connector.setAnswerHook(function (sId, msg) {
-          debuglog('sending answer for ' + id + ' to ' + sId + ' > ' + JSON.stringify(msg));
+          debuglog.enabled && debuglog('sending answer for ' + id + ' to ' + sId + ' > ' + JSON.stringify(msg));
           socket.emit('sqlclient',{ time : new Date(),
             sourcedest : msg.sourcedest,
             body : msg.body,
@@ -235,7 +235,7 @@ export class WCServer {
           var conversationID = data.conversationID || id;
           debuglog('re associate answerhook ' + conversationID);
           that.connector.setAnswerHook(function (sId, sBody) {
-            console.log('sending answer for ' + sId + ' to ' + conversationID + ' > ' +  JSON.stringify(sBody));
+            debuglog.enabled && debuglog('sending answer for ' + sId + ' to ' + conversationID + ' > ' +  JSON.stringify(sBody));
             socket.emit('sqlclient',
               { time : new Date(),
                 name : 'unknown' ,
@@ -245,7 +245,7 @@ export class WCServer {
                 id : conversationID
               });
           }, conversationID);
-          console.log('user' + user + ' conv: ' + conversationID + ' asks '  + JSON.stringify(data.body));
+          debuglog.enabled && debuglog('user' + user + ' conv: ' + conversationID + ' asks '  + JSON.stringify(data.body));
           that.connector.processMessage({ conversationID : conversationID,
             user : user,
             body : data.body });
